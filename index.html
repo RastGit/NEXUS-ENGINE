@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>NEXUS ENGINE — Game Development Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/main.css">
+</head>
+<body class="mode-normal">
+
+<!-- BOOT SCREEN -->
+<div id="boot-screen">
+  <div class="boot-logo">
+    <div class="boot-hex"></div>
+    <h1>NEXUS<span>ENGINE</span></h1>
+    <div class="boot-bar"><div class="boot-fill"></div></div>
+    <p class="boot-status">Initializing rendering pipeline...</p>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+
+  <!-- TOP BAR -->
+  <header id="topbar">
+    <div class="logo-area">
+      <div class="logo-icon">⬡</div>
+      <span class="logo-text">NEXUS<b>ENGINE</b></span>
+      <span class="version-tag">v1.0 ALPHA</span>
+    </div>
+    <nav class="top-nav">
+      <button class="nav-btn active" data-panel="editor">🎮 Editor</button>
+      <button class="nav-btn" data-panel="textures">🎨 Tekstury</button>
+      <button class="nav-btn" data-panel="assets">📦 Assety</button>
+      <button class="nav-btn" data-panel="ai">🤖 AI Studio</button>
+      <button class="nav-btn" data-panel="settings">⚙️ Ustawienia</button>
+    </nav>
+    <div class="top-actions">
+      <button class="btn-run" id="btnRun">▶ URUCHOM</button>
+      <button class="btn-export" id="btnExport">⬇ EKSPORTUJ</button>
+    </div>
+  </header>
+
+  <!-- RENDER MODE SWITCHER -->
+  <div id="mode-switcher">
+    <span class="mode-label">TRYB RENDEROWANIA:</span>
+    <button class="mode-btn" data-mode="realistic">🌟 REALISTIC</button>
+    <button class="mode-btn active" data-mode="normal">🎮 NORMAL</button>
+    <button class="mode-btn" data-mode="retro">👾 RETRO</button>
+    <button class="mode-btn" data-mode="ps1">📺 PS1</button>
+    <div class="fps-counter">FPS: <span id="fpsDisplay">60</span></div>
+  </div>
+
+  <!-- MAIN LAYOUT -->
+  <main id="main-layout">
+
+    <!-- LEFT SIDEBAR: Scene Hierarchy -->
+    <aside id="sidebar-left">
+      <div class="panel-header">
+        <span>🌍 HIERARCHIA SCENY</span>
+        <button class="icon-btn" id="addObjectBtn" title="Dodaj obiekt">+</button>
+      </div>
+      <div id="scene-tree">
+        <div class="tree-item selected" data-id="0">
+          <span class="tree-icon">🌐</span>
+          <span class="tree-name">Scena Główna</span>
+        </div>
+        <div class="tree-item child" data-id="1">
+          <span class="tree-icon">📷</span>
+          <span class="tree-name">Kamera</span>
+        </div>
+        <div class="tree-item child" data-id="2">
+          <span class="tree-icon">💡</span>
+          <span class="tree-name">Światło Kierunkowe</span>
+        </div>
+        <div class="tree-item child" data-id="3">
+          <span class="tree-icon">🟫</span>
+          <span class="tree-name">Podłoże</span>
+        </div>
+        <div class="tree-item child" data-id="4">
+          <span class="tree-icon">📦</span>
+          <span class="tree-name">Gracz</span>
+        </div>
+      </div>
+      <div class="sidebar-section">
+        <div class="panel-header"><span>🧩 KOMPONENTY</span></div>
+        <div id="component-list">
+          <div class="component-chip">Transform</div>
+          <div class="component-chip">MeshRenderer</div>
+          <div class="component-chip">Collider</div>
+          <div class="component-chip">RigidBody</div>
+          <button class="add-component-btn">+ Dodaj Komponent</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- CENTER: Viewport + Panels -->
+    <div id="center-area">
+
+      <!-- VIEWPORT -->
+      <div id="viewport-wrapper">
+        <div id="viewport-toolbar">
+          <div class="vp-tools">
+            <button class="vp-tool active" data-tool="select" title="Zaznacz">↖</button>
+            <button class="vp-tool" data-tool="move" title="Przesuń">✛</button>
+            <button class="vp-tool" data-tool="rotate" title="Obróć">↻</button>
+            <button class="vp-tool" data-tool="scale" title="Skaluj">⤢</button>
+          </div>
+          <div class="vp-view-btns">
+            <button class="vp-view active" data-view="perspective">3D</button>
+            <button class="vp-view" data-view="top">⬆ Góra</button>
+            <button class="vp-view" data-view="front">⬛ Przód</button>
+            <button class="vp-view" data-view="side">◧ Bok</button>
+          </div>
+          <div class="vp-render-opts">
+            <label><input type="checkbox" id="wireframe"> Szkielet</label>
+            <label><input type="checkbox" id="grid" checked> Siatka</label>
+            <label><input type="checkbox" id="shadows" checked> Cienie</label>
+          </div>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+        <div id="viewport-overlay">
+          <div class="vp-badge" id="currentModeBadge">NORMAL MODE</div>
+          <div class="vp-coords" id="vpCoords">X: 0  Y: 0  Z: 0</div>
+        </div>
+      </div>
+
+      <!-- BOTTOM TABS: Console / Timeline / Code -->
+      <div id="bottom-panel">
+        <div class="bottom-tabs">
+          <button class="btab active" data-btab="console">📟 Konsola</button>
+          <button class="btab" data-btab="code">📝 Skrypt</button>
+          <button class="btab" data-btab="timeline">⏱ Timeline</button>
+          <button class="btab" data-btab="physics">🔬 Fizyka</button>
+        </div>
+        <div class="btab-content" id="consolePanel">
+          <div id="console-output"></div>
+          <div class="console-input-row">
+            <span class="console-prompt">&gt;</span>
+            <input type="text" id="consoleInput" placeholder="Wpisz polecenie JavaScript...">
+          </div>
+        </div>
+        <div class="btab-content hidden" id="codePanel">
+          <div class="code-toolbar">
+            <select id="scriptSelect">
+              <option>PlayerController.js</option>
+              <option>EnemyAI.js</option>
+              <option>GameManager.js</option>
+            </select>
+            <button class="btn-sm" id="runScript">▶ Uruchom</button>
+            <button class="btn-sm" id="aiFixBtn">🤖 AI Napraw</button>
+          </div>
+          <textarea id="codeEditor" spellcheck="false">// PlayerController.js — Nexus Engine
+// Sterowanie graczem z fizyką
+
+class PlayerController extends NexusComponent {
+  constructor() {
+    super();
+    this.speed = 5.0;
+    this.jumpForce = 8.0;
+    this.isGrounded = false;
+  }
+
+  update(deltaTime) {
+    const input = Input.getAxes();
+    
+    // Ruch poziomy
+    this.transform.position.x += input.horizontal * this.speed * deltaTime;
+    this.transform.position.z += input.vertical * this.speed * deltaTime;
+    
+    // Skok
+    if (Input.getKeyDown('Space') && this.isGrounded) {
+      this.rigidbody.velocity.y = this.jumpForce;
+      this.isGrounded = false;
+    }
+    
+    // Animacja
+    if (Math.abs(input.horizontal) > 0.1 || Math.abs(input.vertical) > 0.1) {
+      this.animator.play('walk');
+    } else {
+      this.animator.play('idle');
+    }
+  }
+  
+  onCollisionEnter(other) {
+    if (other.tag === 'Ground') {
+      this.isGrounded = true;
+    }
+  }
+}
+</textarea>
+        </div>
+        <div class="btab-content hidden" id="timelinePanel">
+          <div class="timeline-ruler"></div>
+          <div class="timeline-tracks" id="timelineTracks">
+            <div class="track-row">
+              <span class="track-name">Transform.X</span>
+              <div class="track-lane"><div class="keyframe" style="left:5%"></div><div class="keyframe" style="left:40%"></div><div class="keyframe" style="left:80%"></div></div>
+            </div>
+            <div class="track-row">
+              <span class="track-name">Transform.Y</span>
+              <div class="track-lane"><div class="keyframe" style="left:20%"></div><div class="keyframe" style="left:60%"></div></div>
+            </div>
+            <div class="track-row">
+              <span class="track-name">Material.Color</span>
+              <div class="track-lane"><div class="keyframe" style="left:10%"></div><div class="keyframe" style="left:90%"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="btab-content hidden" id="physicsPanel">
+          <div class="physics-grid">
+            <label>Grawitacja Y: <input type="range" min="-20" max="0" value="-9.81" id="gravitySlider"> <span id="gravityVal">-9.81</span></label>
+            <label>Tarcie: <input type="range" min="0" max="1" step="0.01" value="0.5" id="frictionSlider"> <span id="frictionVal">0.5</span></label>
+            <label>Odbicie: <input type="range" min="0" max="1" step="0.01" value="0.3" id="bounceSlider"> <span id="bounceVal">0.3</span></label>
+            <label>Gęstość powietrza: <input type="range" min="0" max="2" step="0.01" value="1.2" id="airSlider"> <span id="airVal">1.2</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR: Inspector -->
+    <aside id="sidebar-right">
+      <div class="panel-header"><span>🔍 INSPEKTOR</span></div>
+      <div id="inspector">
+        <div class="inspector-section">
+          <div class="inspect-header">Transform</div>
+          <div class="inspect-row">
+            <span>Pozycja</span>
+            <div class="xyz-inputs">
+              <input type="number" value="0" step="0.1" placeholder="X">
+              <input type="number" value="0" step="0.1" placeholder="Y">
+              <input type="number" value="0" step="0.1" placeholder="Z">
+            </div>
+          </div>
+          <div class="inspect-row">
+            <span>Rotacja</span>
+            <div class="xyz-inputs">
+              <input type="number" value="0" step="1" placeholder="X">
+              <input type="number" value="0" step="1" placeholder="Y">
+              <input type="number" value="0" step="1" placeholder="Z">
+            </div>
+          </div>
+          <div class="inspect-row">
+            <span>Skala</span>
+            <div class="xyz-inputs">
+              <input type="number" value="1" step="0.1" placeholder="X">
+              <input type="number" value="1" step="0.1" placeholder="Y">
+              <input type="number" value="1" step="0.1" placeholder="Z">
+            </div>
+          </div>
+        </div>
+        <div class="inspector-section">
+          <div class="inspect-header">Material</div>
+          <div class="inspect-row">
+            <span>Kolor</span>
+            <input type="color" value="#4a90e2" id="objColor">
+          </div>
+          <div class="inspect-row">
+            <span>Metaliczność</span>
+            <input type="range" min="0" max="1" step="0.01" value="0.3" class="full-range">
+          </div>
+          <div class="inspect-row">
+            <span>Chropowatość</span>
+            <input type="range" min="0" max="1" step="0.01" value="0.7" class="full-range">
+          </div>
+          <div class="inspect-row">
+            <span>Emisja</span>
+            <input type="color" value="#000000">
+          </div>
+        </div>
+        <div class="inspector-section">
+          <div class="inspect-header">RigidBody</div>
+          <div class="inspect-row">
+            <span>Masa</span>
+            <input type="number" value="1" min="0.01" step="0.1">
+          </div>
+          <div class="inspect-row">
+            <span>Kinematyczny</span>
+            <input type="checkbox">
+          </div>
+          <div class="inspect-row">
+            <span>Używaj grawitacji</span>
+            <input type="checkbox" checked>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- TEXTURE PANEL -->
+  <div id="panel-textures" class="full-panel hidden">
+    <div class="panel-header big">
+      <span>🎨 EDYTOR TEKSTUR</span>
+      <button class="close-panel">✕</button>
+    </div>
+    <div class="texture-layout">
+      <div class="texture-tools">
+        <h3>Narzędzia</h3>
+        <button class="tex-tool active" data-texttool="brush">🖌 Pędzel</button>
+        <button class="tex-tool" data-texttool="fill">🪣 Wiadro</button>
+        <button class="tex-tool" data-texttool="erase">🧹 Gumka</button>
+        <button class="tex-tool" data-texttool="noise">🌊 Szum</button>
+        <button class="tex-tool" data-texttool="pattern">🔲 Wzór</button>
+        <hr>
+        <h3>Rozmiar</h3>
+        <input type="range" min="1" max="50" value="10" id="brushSize">
+        <h3>Kolor</h3>
+        <input type="color" value="#ff6600" id="texColor">
+        <div class="palette">
+          <div class="pal-color" style="background:#ff4444"></div>
+          <div class="pal-color" style="background:#44ff44"></div>
+          <div class="pal-color" style="background:#4444ff"></div>
+          <div class="pal-color" style="background:#ffff44"></div>
+          <div class="pal-color" style="background:#ff44ff"></div>
+          <div class="pal-color" style="background:#44ffff"></div>
+          <div class="pal-color" style="background:#ffffff"></div>
+          <div class="pal-color" style="background:#000000"></div>
+        </div>
+        <hr>
+        <h3>Generuj AI</h3>
+        <input type="text" placeholder="np. skała, trawa, metal..." id="aiTexPrompt">
+        <button class="btn-ai-gen" id="generateTexture">🤖 Generuj</button>
+        <hr>
+        <button class="btn-sm" id="saveTexture">💾 Zapisz</button>
+        <button class="btn-sm" id="clearTexture">🗑 Wyczyść</button>
+        <button class="btn-sm">📤 Eksportuj PNG</button>
+      </div>
+      <div class="texture-canvas-area">
+        <canvas id="textureCanvas" width="512" height="512"></canvas>
+        <div class="tex-size-info">512 × 512 px</div>
+      </div>
+      <div class="texture-library">
+        <h3>Biblioteka Tekstur</h3>
+        <div class="tex-lib-grid" id="texLibGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI STUDIO PANEL -->
+  <div id="panel-ai" class="full-panel hidden">
+    <div class="panel-header big">
+      <span>🤖 AI STUDIO — Nexus Intelligence</span>
+      <button class="close-panel">✕</button>
+    </div>
+    <div class="ai-layout">
+      <div class="ai-modules">
+        <div class="ai-module active" data-ai="npc">🧠 AI NPC</div>
+        <div class="ai-module" data-ai="terrain">🏔 Generator Terenu</div>
+        <div class="ai-module" data-ai="texture">🎨 Generator Tekstur</div>
+        <div class="ai-module" data-ai="code">💻 Generator Kodu</div>
+        <div class="ai-module" data-ai="balance">⚖ Balans Gry</div>
+        <div class="ai-module" data-ai="pathfind">🗺 Pathfinding</div>
+      </div>
+      <div class="ai-workspace">
+        <div class="ai-section" id="ai-npc">
+          <h2>🧠 System AI dla NPC</h2>
+          <div class="ai-npc-brain">
+            <div class="brain-vis" id="brainVis">
+              <canvas id="brainCanvas" width="300" height="200"></canvas>
+            </div>
+            <div class="npc-config">
+              <label>Typ AI:
+                <select id="npcAiType">
+                  <option>Prosty (FSM)</option>
+                  <option>Średni (BehaviorTree)</option>
+                  <option>Zaawansowany (Neural)</option>
+                  <option>Uczący się (RL)</option>
+                </select>
+              </label>
+              <label>Agresywność: <input type="range" min="0" max="1" step="0.01" value="0.5" id="aiAggression"></label>
+              <label>Inteligencja: <input type="range" min="0" max="1" step="0.01" value="0.7" id="aiIntelligence"></label>
+              <label>Pamięć (sekundy): <input type="number" value="30" min="0"></label>
+              <label>Pole widzenia (°): <input type="range" min="30" max="360" value="120" id="aiFOV"></label>
+              <button class="btn-ai-train" id="trainAI">🚀 Trenuj AI</button>
+            </div>
+          </div>
+          <div class="ai-training-log" id="trainingLog">
+            <p class="log-ready">System gotowy. Kliknij "Trenuj AI" aby rozpocząć uczenie maszynowe.</p>
+          </div>
+        </div>
+        <div class="ai-section hidden" id="ai-terrain">
+          <h2>🏔 Generator Proceduralny Terenu</h2>
+          <div class="terrain-controls">
+            <label>Seed: <input type="number" value="42" id="terrainSeed"></label>
+            <label>Skala: <input type="range" min="1" max="100" value="30" id="terrainScale"></label>
+            <label>Wysokość: <input type="range" min="1" max="50" value="10" id="terrainHeight"></label>
+            <label>Oktawy: <input type="range" min="1" max="8" value="4" id="terrainOctaves"></label>
+            <label>Typ:
+              <select id="terrainType">
+                <option>Niziny</option>
+                <option>Góry</option>
+                <option>Wyspy</option>
+                <option>Kaniony</option>
+                <option>Księżyc</option>
+              </select>
+            </label>
+            <button class="btn-ai-gen" id="generateTerrain">🌍 Generuj Teren</button>
+          </div>
+          <canvas id="terrainPreview" width="400" height="200"></canvas>
+        </div>
+        <div class="ai-section hidden" id="ai-code">
+          <h2>💻 AI Generator Kodu</h2>
+          <textarea id="aiCodePrompt" placeholder="Opisz co ma robić skrypt...&#10;np. 'Stwórz system inventory z drag&drop, maxslots 30, stackowanie itemów'"></textarea>
+          <button class="btn-ai-gen" id="generateCode">⚡ Generuj Kod</button>
+          <pre id="aiGeneratedCode">// Wygenerowany kod pojawi się tutaj...</pre>
+        </div>
+        <div class="ai-section hidden" id="ai-balance">
+          <h2>⚖ Balans Gry — Analiza AI</h2>
+          <div class="balance-chart" id="balanceChart">
+            <canvas id="balanceCanvas" width="500" height="300"></canvas>
+          </div>
+          <div class="balance-stats">
+            <div class="stat-card">
+              <div class="stat-val" id="balDiff">★★★</div>
+              <div class="stat-lbl">Trudność</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-val" id="balFun">87%</div>
+              <div class="stat-lbl">Fun Score</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-val" id="balRetention">High</div>
+              <div class="stat-lbl">Retencja</div>
+            </div>
+          </div>
+          <button class="btn-ai-gen" id="analyzeBalance">📊 Analizuj Grę</button>
+        </div>
+        <div class="ai-section hidden" id="ai-pathfind">
+          <h2>🗺 System Pathfinding A*</h2>
+          <canvas id="pathCanvas" width="400" height="400"></canvas>
+          <div class="path-controls">
+            <button class="btn-sm" id="generateMaze">🗺 Generuj Mapę</button>
+            <button class="btn-sm" id="solvePath">🤖 Znajdź Ścieżkę</button>
+            <label>Algorytm:
+              <select id="pathAlgo">
+                <option>A* (Domyślny)</option>
+                <option>Dijkstra</option>
+                <option>BFS</option>
+                <option>NavMesh</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSETS PANEL -->
+  <div id="panel-assets" class="full-panel hidden">
+    <div class="panel-header big">
+      <span>📦 MENEDŻER ASSETÓW</span>
+      <button class="close-panel">✕</button>
+    </div>
+    <div class="assets-layout">
+      <div class="assets-sidebar">
+        <div class="asset-cat active">📁 Wszystkie</div>
+        <div class="asset-cat">🟫 Modele 3D</div>
+        <div class="asset-cat">🖼 Tekstury</div>
+        <div class="asset-cat">🔊 Audio</div>
+        <div class="asset-cat">📜 Skrypty</div>
+        <div class="asset-cat">🎬 Animacje</div>
+        <div class="asset-cat">✨ Efekty</div>
+        <hr>
+        <button class="btn-sm" id="importAsset">📤 Importuj</button>
+        <button class="btn-sm" id="createPrimitive">🔷 Prymityw</button>
+      </div>
+      <div class="assets-grid" id="assetsGrid"></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS PANEL -->
+  <div id="panel-settings" class="full-panel hidden">
+    <div class="panel-header big">
+      <span>⚙️ USTAWIENIA PROJEKTU</span>
+      <button class="close-panel">✕</button>
+    </div>
+    <div class="settings-grid">
+      <div class="settings-section">
+        <h3>🎮 Ustawienia Gry</h3>
+        <label>Nazwa projektu: <input type="text" value="Moja Gra"></label>
+        <label>Rozdzielczość: <select><option>1920×1080</option><option>1280×720</option><option>Mobile</option></select></label>
+        <label>Target FPS: <input type="number" value="60" min="30" max="144"></label>
+        <label>VSync: <input type="checkbox" checked></label>
+      </div>
+      <div class="settings-section">
+        <h3>🌟 Grafika</h3>
+        <label>Jakość cieni: <select><option>Wysoka</option><option>Średnia</option><option>Niska</option><option>Wyłączone</option></select></label>
+        <label>Anti-aliasing: <select><option>MSAA 4x</option><option>MSAA 2x</option><option>FXAA</option><option>Brak</option></select></label>
+        <label>Ambient Occlusion: <input type="checkbox" checked></label>
+        <label>Bloom: <input type="checkbox" checked></label>
+        <label>Motion Blur: <input type="checkbox"></label>
+      </div>
+      <div class="settings-section">
+        <h3>🔊 Audio</h3>
+        <label>Głośność Master: <input type="range" min="0" max="100" value="80"></label>
+        <label>Głośność SFX: <input type="range" min="0" max="100" value="70"></label>
+        <label>Głośność Music: <input type="range" min="0" max="100" value="50"></label>
+        <label>3D Audio: <input type="checkbox" checked></label>
+      </div>
+      <div class="settings-section">
+        <h3>📱 Platforma</h3>
+        <label>Cel:
+          <select id="targetPlatform">
+            <option>Web (GitHub Pages)</option>
+            <option>Android</option>
+            <option>iOS</option>
+            <option>Windows</option>
+            <option>Linux</option>
+          </select>
+        </label>
+        <label>Kompresja: <input type="checkbox" checked></label>
+        <label>PWA (Offline): <input type="checkbox" checked></label>
+        <button class="btn-export big-btn" id="publishGH">🚀 Publikuj na GitHub Pages</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME PREVIEW MODAL -->
+  <div id="game-modal" class="hidden">
+    <div class="modal-inner">
+      <div class="modal-header">
+        <span>▶ PODGLĄD GRY</span>
+        <div class="modal-controls">
+          <button id="toggleFullscreen">⛶ Pełny ekran</button>
+          <button id="closeModal">✕ Zamknij</button>
+        </div>
+      </div>
+      <canvas id="gamePreviewCanvas"></canvas>
+      <div class="game-ui-overlay" id="gameUI">
+        <div class="hud-health">❤ HP: <span id="hpVal">100</span>/100</div>
+        <div class="hud-score">⭐ Wynik: <span id="scoreVal">0</span></div>
+        <div class="hud-ammo">🔫 Ammo: <span id="ammoVal">30</span>/90</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end #app -->
+
+<script src="js/engine.js"></script>
+<script src="js/renderer.js"></script>
+<script src="js/texture-editor.js"></script>
+<script src="js/ai-system.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
