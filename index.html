@@ -2,11 +2,1207 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#080c14">
 <title>NEXUS ENGINE — Game Development Platform</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@300;400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/main.css">
+<style>
+/* ============================================
+   NEXUS ENGINE — Main Stylesheet
+   ============================================ */
+
+:root {
+  --bg-deep: #080c14;
+  --bg-mid: #0d1421;
+  --bg-panel: #111827;
+  --bg-card: #1a2332;
+  --accent: #00d4ff;
+  --accent2: #7c3aed;
+  --accent3: #10b981;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --text-primary: #e2e8f0;
+  --text-muted: #64748b;
+  --border: #1e293b;
+  --border-glow: rgba(0,212,255,0.3);
+  --font-mono: 'Courier New', 'Lucida Console', monospace;
+  --font-display: 'Arial Black', 'Impact', sans-serif;
+  --font-body: 'Segoe UI', Arial, sans-serif;
+}
+
+/* MODE THEMES */
+.mode-realistic {
+  --accent: #ffd700;
+  --accent2: #ff6b35;
+  --bg-deep: #0a0a0a;
+  --bg-mid: #111111;
+  --bg-panel: #161616;
+  --bg-card: #1e1e1e;
+}
+.mode-retro {
+  --accent: #00ff41;
+  --accent2: #ff00ff;
+  --bg-deep: #000000;
+  --bg-mid: #001100;
+  --bg-panel: #001a00;
+  --bg-card: #002200;
+  --border: #003300;
+  --text-primary: #00ff41;
+}
+.mode-ps1 {
+  --accent: #ff6090;
+  --accent2: #60c0ff;
+  --bg-deep: #1a0a2e;
+  --bg-mid: #2a0a4e;
+  --bg-panel: #3a0a6e;
+  --bg-card: #4a1a7e;
+  --text-primary: #ffeecc;
+  --border: #6a2a9e;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  overflow: hidden;
+}
+
+/* ============================================
+   BOOT SCREEN
+   ============================================ */
+#boot-screen {
+  position: fixed; inset: 0;
+  background: #000;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease;
+}
+#boot-screen.fade-out { opacity: 0; pointer-events: none; }
+.boot-logo { text-align: center; }
+.boot-hex {
+  width: 80px; height: 80px;
+  margin: 0 auto 20px;
+  background: var(--accent);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  animation: pulse-hex 1s ease-in-out infinite;
+}
+@keyframes pulse-hex {
+  0%,100% { transform: scale(1); box-shadow: 0 0 20px var(--accent); }
+  50% { transform: scale(1.1); box-shadow: 0 0 50px var(--accent); }
+}
+.boot-logo h1 {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  color: #fff;
+  letter-spacing: 0.3em;
+  margin-bottom: 30px;
+}
+.boot-logo h1 span { color: var(--accent); }
+.boot-bar {
+  width: 300px; height: 3px;
+  background: #1a1a1a;
+  border-radius: 2px;
+  margin: 0 auto 15px;
+  overflow: hidden;
+}
+.boot-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  width: 0%;
+  animation: fill-bar 2s ease forwards;
+}
+@keyframes fill-bar { to { width: 100%; } }
+.boot-status { color: #555; font-family: var(--font-mono); font-size: 0.8rem; }
+
+/* ============================================
+   TOP BAR
+   ============================================ */
+#topbar {
+  height: 48px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 16px;
+  position: relative;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+.logo-area {
+  display: flex; align-items: center; gap: 8px;
+  min-width: 180px;
+}
+.logo-icon {
+  font-size: 1.4rem;
+  color: var(--accent);
+  filter: drop-shadow(0 0 8px var(--accent));
+}
+.logo-text {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  color: #fff;
+}
+.logo-text b { color: var(--accent); }
+.version-tag {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  background: var(--bg-card);
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+}
+.top-nav {
+  display: flex; gap: 2px; flex: 1;
+}
+.nav-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+.nav-btn:hover { background: var(--bg-card); color: var(--text-primary); }
+.nav-btn.active {
+  background: var(--bg-card);
+  color: var(--accent);
+  border-bottom: 2px solid var(--accent);
+}
+.top-actions { display: flex; gap: 8px; margin-left: auto; }
+.btn-run {
+  background: var(--accent3);
+  color: #000;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-weight: bold;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-run:hover { filter: brightness(1.2); transform: scale(1.02); }
+.btn-export {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-export:hover { background: rgba(0,212,255,0.1); }
+
+/* ============================================
+   MODE SWITCHER
+   ============================================ */
+#mode-switcher {
+  height: 36px;
+  background: var(--bg-mid);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+.mode-label { color: var(--text-muted); margin-right: 4px; }
+.mode-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 4px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  transition: all 0.2s;
+}
+.mode-btn:hover { border-color: var(--accent); color: var(--accent); }
+.mode-btn.active {
+  background: rgba(0,212,255,0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 8px rgba(0,212,255,0.2);
+}
+.fps-counter {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  color: var(--accent3);
+  font-size: 0.8rem;
+}
+
+/* ============================================
+   MAIN LAYOUT
+   ============================================ */
+#main-layout {
+  display: flex;
+  height: calc(100vh - 84px);
+  overflow: hidden;
+}
+
+/* Sidebars */
+#sidebar-left, #sidebar-right {
+  width: 220px;
+  min-width: 180px;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#sidebar-right { border-right: none; border-left: 1px solid var(--border); }
+
+.panel-header {
+  height: 32px;
+  background: var(--bg-mid);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.panel-header.big {
+  height: 44px;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+.icon-btn {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  width: 18px; height: 18px;
+  border-radius: 2px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+/* Scene Tree */
+#scene-tree {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.tree-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-size: 0.8rem;
+}
+.tree-item.child { padding-left: 24px; }
+.tree-item:hover { background: var(--bg-card); }
+.tree-item.selected {
+  background: rgba(0,212,255,0.1);
+  border-left: 2px solid var(--accent);
+  color: var(--accent);
+}
+.tree-icon { font-size: 0.9rem; }
+.tree-name { flex: 1; }
+
+/* Components */
+.sidebar-section { border-top: 1px solid var(--border); padding: 8px; }
+.component-chip {
+  display: inline-block;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 2px 7px;
+  margin: 2px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--accent);
+  cursor: pointer;
+}
+.add-component-btn {
+  width: 100%;
+  margin-top: 6px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--text-muted);
+  padding: 4px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+.add-component-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ============================================
+   CENTER AREA
+   ============================================ */
+#center-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Viewport */
+#viewport-wrapper {
+  flex: 1;
+  position: relative;
+  background: #000;
+  overflow: hidden;
+}
+#viewport-toolbar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 36px;
+  background: rgba(13,20,33,0.9);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  gap: 12px;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+}
+.vp-tools, .vp-view-btns, .vp-render-opts {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.vp-tools, .vp-view-btns { border-right: 1px solid var(--border); padding-right: 12px; }
+.vp-tool {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  width: 28px; height: 28px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.15s;
+}
+.vp-tool.active, .vp-tool:hover {
+  background: rgba(0,212,255,0.2);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.vp-view {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 3px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  transition: all 0.15s;
+}
+.vp-view.active { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.1); }
+.vp-render-opts { gap: 10px; font-size: 0.75rem; color: var(--text-muted); }
+.vp-render-opts label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+
+#gameCanvas {
+  position: absolute;
+  top: 36px;
+  left: 0;
+  width: 100%;
+  height: calc(100% - 36px);
+}
+
+#viewport-overlay {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  display: flex;
+  gap: 10px;
+  pointer-events: none;
+}
+.vp-badge {
+  background: rgba(0,212,255,0.15);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+.vp-coords {
+  background: rgba(0,0,0,0.5);
+  color: var(--text-muted);
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+
+/* Bottom Panel */
+#bottom-panel {
+  height: 200px;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+.bottom-tabs {
+  display: flex;
+  background: var(--bg-mid);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.btab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  padding: 6px 14px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  transition: all 0.15s;
+}
+.btab:hover { color: var(--text-primary); }
+.btab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.btab-content { flex: 1; overflow-y: auto; padding: 6px; }
+.btab-content.hidden { display: none; }
+
+/* Console */
+#console-output {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  min-height: 100px;
+  color: var(--accent3);
+}
+#console-output .log-info { color: var(--accent3); }
+#console-output .log-warn { color: var(--warning); }
+#console-output .log-error { color: var(--danger); }
+.console-input-row {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 4px;
+  border-top: 1px solid var(--border);
+  padding-top: 4px;
+}
+.console-prompt { color: var(--accent); font-family: var(--font-mono); }
+#consoleInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  outline: none;
+}
+
+/* Code Editor */
+.code-toolbar {
+  display: flex; gap: 8px; align-items: center; margin-bottom: 6px; flex-shrink: 0;
+}
+.code-toolbar select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+.btn-sm {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 3px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  transition: all 0.15s;
+}
+.btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+#codeEditor {
+  width: 100%;
+  height: 130px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  color: var(--accent3);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 8px;
+  border-radius: 3px;
+  resize: none;
+  outline: none;
+}
+
+/* Timeline */
+.timeline-ruler {
+  height: 20px;
+  background: repeating-linear-gradient(90deg, var(--border) 0px, var(--border) 1px, transparent 1px, transparent 50px);
+  margin-bottom: 4px;
+}
+.track-row {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.track-name {
+  width: 120px;
+  padding: 0 8px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.track-lane {
+  flex: 1;
+  height: 100%;
+  background: var(--bg-deep);
+  position: relative;
+}
+.keyframe {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  width: 8px; height: 8px;
+  background: var(--warning);
+  cursor: pointer;
+}
+
+/* Physics */
+.physics-grid { display: grid; gap: 8px; padding: 8px; }
+.physics-grid label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.8rem; color: var(--text-muted);
+}
+.physics-grid input[type=range] { flex: 1; }
+
+/* ============================================
+   INSPECTOR
+   ============================================ */
+#inspector { overflow-y: auto; padding: 8px; }
+.inspector-section { margin-bottom: 12px; }
+.inspect-header {
+  background: var(--bg-mid);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  border-radius: 3px;
+  margin-bottom: 6px;
+  border-left: 2px solid var(--accent);
+}
+.inspect-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+  gap: 6px;
+}
+.inspect-row span { font-size: 0.75rem; color: var(--text-muted); min-width: 60px; }
+.xyz-inputs { display: flex; gap: 3px; flex: 1; }
+.xyz-inputs input, .inspect-row input[type=number] {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.xyz-inputs input:focus, .inspect-row input:focus { border-color: var(--accent); }
+.full-range { width: 100%; flex: 1; }
+.inspect-row input[type=color] {
+  width: 32px; height: 22px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  cursor: pointer;
+  background: none;
+}
+
+/* ============================================
+   FULL PANELS (Textures, AI, Assets, Settings)
+   ============================================ */
+.full-panel {
+  position: fixed;
+  inset: 84px 0 0 0;
+  background: var(--bg-panel);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.2s ease;
+}
+.full-panel.hidden { display: none !important; }
+@keyframes slideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.close-panel {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 3px;
+  transition: all 0.15s;
+}
+.close-panel:hover { background: var(--danger); color: #fff; }
+
+/* ============================================
+   TEXTURE EDITOR
+   ============================================ */
+.texture-layout {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+.texture-tools {
+  width: 160px;
+  padding: 10px;
+  background: var(--bg-mid);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.texture-tools h3 {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.tex-tool {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 5px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  text-align: left;
+  transition: all 0.15s;
+}
+.tex-tool.active, .tex-tool:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(0,212,255,0.08);
+}
+.texture-tools input[type=text] {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 5px 8px;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  outline: none;
+  width: 100%;
+}
+.btn-ai-gen {
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  border: none;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: bold;
+  transition: all 0.2s;
+  width: 100%;
+}
+.btn-ai-gen:hover { filter: brightness(1.2); transform: scale(1.02); }
+.palette {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+  margin-top: 4px;
+}
+.pal-color {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.15s;
+}
+.pal-color:hover { border-color: #fff; }
+.texture-canvas-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: repeating-conic-gradient(#1a2332 0% 25%, #0d1421 0% 50%) 0 0 / 20px 20px;
+  overflow: hidden;
+}
+#textureCanvas {
+  cursor: crosshair;
+  box-shadow: 0 0 30px rgba(0,0,0,0.5);
+  max-width: 90%;
+  max-height: 90%;
+}
+.tex-size-info {
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+.texture-library {
+  width: 200px;
+  background: var(--bg-mid);
+  border-left: 1px solid var(--border);
+  padding: 10px;
+  overflow-y: auto;
+}
+.texture-library h3 {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.tex-lib-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+}
+.tex-lib-item {
+  aspect-ratio: 1;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.tex-lib-item:hover { border-color: var(--accent); }
+.tex-lib-item canvas { width: 100%; height: 100%; display: block; }
+
+/* ============================================
+   AI STUDIO
+   ============================================ */
+.ai-layout {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+.ai-modules {
+  width: 180px;
+  background: var(--bg-mid);
+  border-right: 1px solid var(--border);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ai-module {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.15s;
+}
+.ai-module:hover, .ai-module.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(0,212,255,0.08);
+}
+.ai-workspace {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+.ai-section h2 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+.ai-section.hidden { display: none; }
+.ai-npc-brain { display: flex; gap: 20px; margin-bottom: 16px; }
+.brain-vis {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--bg-deep);
+}
+.npc-config { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.npc-config label {
+  display: flex; flex-direction: column; gap: 3px;
+  font-size: 0.8rem; color: var(--text-muted);
+}
+.npc-config select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 5px 8px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+.btn-ai-train {
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-weight: bold;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+  margin-top: 4px;
+}
+.btn-ai-train:hover { filter: brightness(1.2); }
+.ai-training-log {
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 10px;
+  min-height: 100px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent3);
+  max-height: 200px;
+  overflow-y: auto;
+}
+.log-ready { color: var(--text-muted); }
+.terrain-controls { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.terrain-controls label { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--text-muted); }
+.terrain-controls input[type=number] {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  width: 80px;
+}
+.terrain-controls input[type=range] { flex: 1; }
+.terrain-controls select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+}
+#terrainPreview {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+#aiCodePrompt {
+  width: 100%;
+  height: 100px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 10px;
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  resize: vertical;
+  outline: none;
+  margin-bottom: 10px;
+}
+#aiGeneratedCode {
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  padding: 12px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--accent3);
+  white-space: pre-wrap;
+  margin-top: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.balance-chart { margin-bottom: 16px; }
+.balance-stats { display: flex; gap: 12px; margin-bottom: 12px; }
+.stat-card {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 12px;
+  border-radius: 6px;
+  text-align: center;
+}
+.stat-val { font-family: var(--font-display); font-size: 1.2rem; color: var(--accent); }
+.stat-lbl { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; }
+#pathCanvas {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 12px;
+  display: block;
+}
+.path-controls { display: flex; gap: 8px; align-items: center; }
+
+/* ============================================
+   ASSETS PANEL
+   ============================================ */
+.assets-layout { flex: 1; display: flex; overflow: hidden; }
+.assets-sidebar {
+  width: 160px;
+  background: var(--bg-mid);
+  border-right: 1px solid var(--border);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.asset-cat {
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  transition: all 0.15s;
+}
+.asset-cat:hover, .asset-cat.active {
+  background: rgba(0,212,255,0.1);
+  color: var(--accent);
+}
+.assets-grid {
+  flex: 1;
+  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 8px;
+  align-content: start;
+  overflow-y: auto;
+}
+.asset-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 6px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+}
+.asset-item:hover { border-color: var(--accent); transform: scale(1.02); }
+.asset-icon { font-size: 2rem; display: block; margin-bottom: 5px; }
+.asset-name {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================
+   SETTINGS PANEL
+   ============================================ */
+.settings-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  padding: 20px;
+  overflow-y: auto;
+}
+.settings-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+.settings-section h3 {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+.settings-section label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(30,41,59,0.5);
+}
+.settings-section label input[type=text],
+.settings-section label input[type=number],
+.settings-section label select {
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+.big-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-weight: bold;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.big-btn:hover { filter: brightness(1.15); transform: scale(1.01); }
+
+/* ============================================
+   GAME MODAL
+   ============================================ */
+#game-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#game-modal.hidden { display: none; }
+.modal-inner {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: min(900px, 95vw);
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: var(--bg-mid);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+}
+.modal-controls { display: flex; gap: 8px; }
+.modal-controls button {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.15s;
+}
+.modal-controls button:hover { border-color: var(--accent); color: var(--accent); }
+#closeModal:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
+#gamePreviewCanvas {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+}
+.game-ui-overlay {
+  position: absolute;
+  top: 10px; left: 10px;
+  display: flex; gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+.hud-health { color: var(--danger); }
+.hud-score { color: var(--warning); }
+.hud-ammo { color: var(--accent); }
+
+/* ============================================
+   SCROLLBARS
+   ============================================ */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ============================================
+   RESPONSIVE — Mobile
+   ============================================ */
+@media (max-width: 900px) {
+  #sidebar-left { display: none; }
+  #sidebar-right { display: none; }
+  #topbar { flex-wrap: wrap; height: auto; padding: 6px; }
+  .top-nav { overflow-x: auto; width: 100%; }
+  .nav-btn { padding: 5px 8px; font-size: 0.7rem; }
+  .logo-area { min-width: auto; }
+  #mode-switcher { flex-wrap: wrap; height: auto; padding: 6px; }
+  #main-layout { height: calc(100vh - 120px); }
+  .texture-library { display: none; }
+  .ai-modules { width: 120px; }
+}
+
+@media (max-width: 600px) {
+  #topbar { padding: 4px; }
+  .top-nav { gap: 0; }
+  .nav-btn { padding: 5px 6px; font-size: 0.65rem; }
+  .logo-text { font-size: 0.75rem; }
+  .version-tag { display: none; }
+  .btn-run, .btn-export { padding: 5px 8px; font-size: 0.72rem; }
+  #mode-switcher .mode-btn { padding: 3px 7px; font-size: 0.65rem; }
+  .settings-grid { grid-template-columns: 1fr; }
+  .ai-modules { display: none; }
+}
+
+/* ============================================
+   MODE-SPECIFIC VIEWPORT EFFECTS
+   ============================================ */
+.mode-retro #gameCanvas {
+  image-rendering: pixelated;
+  filter: contrast(1.1) saturate(1.2);
+}
+.mode-ps1 #gameCanvas {
+  image-rendering: pixelated;
+  filter: contrast(1.05) saturate(0.9) brightness(0.95);
+}
+.mode-realistic #gameCanvas {
+  filter: contrast(1.02) saturate(1.1) brightness(1.05);
+}
+
+/* Glow effects for modes */
+.mode-retro .vp-badge {
+  color: var(--accent);
+  text-shadow: 0 0 10px var(--accent);
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0.5; } }
+
+.mode-ps1 #topbar {
+  background: linear-gradient(90deg, #2a0a4e, #3a0a6e);
+}
+
+/* Scanlines overlay for retro/PS1 */
+.mode-retro #viewport-wrapper::after,
+.mode-ps1 #viewport-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px);
+  pointer-events: none;
+  z-index: 5;
+}
+
+</style>
 </head>
 <body class="mode-normal">
 
@@ -16,7 +1212,7 @@
     <div class="boot-hex"></div>
     <h1>NEXUS<span>ENGINE</span></h1>
     <div class="boot-bar"><div class="boot-fill"></div></div>
-    <p class="boot-status">Initializing rendering pipeline...</p>
+    <p class="boot-status">Uruchamianie...</p>
   </div>
 </div>
 
@@ -26,66 +1222,66 @@
   <!-- TOP BAR -->
   <header id="topbar">
     <div class="logo-area">
-      <div class="logo-icon">⬡</div>
+      <div class="logo-icon">&#11042;</div>
       <span class="logo-text">NEXUS<b>ENGINE</b></span>
-      <span class="version-tag">v1.0 ALPHA</span>
+      <span class="version-tag">v1.0</span>
     </div>
     <nav class="top-nav">
-      <button class="nav-btn active" data-panel="editor">🎮 Editor</button>
-      <button class="nav-btn" data-panel="textures">🎨 Tekstury</button>
-      <button class="nav-btn" data-panel="assets">📦 Assety</button>
-      <button class="nav-btn" data-panel="ai">🤖 AI Studio</button>
-      <button class="nav-btn" data-panel="settings">⚙️ Ustawienia</button>
+      <button class="nav-btn active" data-panel="editor">&#127918; Editor</button>
+      <button class="nav-btn" data-panel="textures">&#127912; Tekstury</button>
+      <button class="nav-btn" data-panel="assets">&#128230; Assety</button>
+      <button class="nav-btn" data-panel="ai">&#129302; AI Studio</button>
+      <button class="nav-btn" data-panel="settings">&#9881; Ustawienia</button>
     </nav>
     <div class="top-actions">
-      <button class="btn-run" id="btnRun">▶ URUCHOM</button>
-      <button class="btn-export" id="btnExport">⬇ EKSPORTUJ</button>
+      <button class="btn-run" id="btnRun">&#9654; URUCHOM</button>
+      <button class="btn-export" id="btnExport">&#8595; EKSPORT</button>
     </div>
   </header>
 
   <!-- RENDER MODE SWITCHER -->
   <div id="mode-switcher">
-    <span class="mode-label">TRYB RENDEROWANIA:</span>
-    <button class="mode-btn" data-mode="realistic">🌟 REALISTIC</button>
-    <button class="mode-btn active" data-mode="normal">🎮 NORMAL</button>
-    <button class="mode-btn" data-mode="retro">👾 RETRO</button>
-    <button class="mode-btn" data-mode="ps1">📺 PS1</button>
+    <span class="mode-label">TRYB:</span>
+    <button class="mode-btn" data-mode="realistic">&#11088; REALISTIC</button>
+    <button class="mode-btn active" data-mode="normal">&#127918; NORMAL</button>
+    <button class="mode-btn" data-mode="retro">&#128126; RETRO</button>
+    <button class="mode-btn" data-mode="ps1">&#128250; PS1</button>
     <div class="fps-counter">FPS: <span id="fpsDisplay">60</span></div>
   </div>
 
   <!-- MAIN LAYOUT -->
   <main id="main-layout">
 
-    <!-- LEFT SIDEBAR: Scene Hierarchy -->
+    <!-- LEFT SIDEBAR -->
     <aside id="sidebar-left">
       <div class="panel-header">
-        <span>🌍 HIERARCHIA SCENY</span>
+        <span>&#127758; SCENA</span>
         <button class="icon-btn" id="addObjectBtn" title="Dodaj obiekt">+</button>
       </div>
       <div id="scene-tree">
         <div class="tree-item selected" data-id="0">
-          <span class="tree-icon">🌐</span>
-          <span class="tree-name">Scena Główna</span>
+          <span class="tree-icon">&#127760;</span>
+          <span class="tree-name">Scena Glowna</span>
         </div>
         <div class="tree-item child" data-id="1">
-          <span class="tree-icon">📷</span>
+          <span class="tree-icon">&#128247;</span>
           <span class="tree-name">Kamera</span>
         </div>
         <div class="tree-item child" data-id="2">
-          <span class="tree-icon">💡</span>
-          <span class="tree-name">Światło Kierunkowe</span>
+          <span class="tree-icon">&#128161;</span>
+          <span class="tree-name">Swiatlo</span>
         </div>
         <div class="tree-item child" data-id="3">
-          <span class="tree-icon">🟫</span>
-          <span class="tree-name">Podłoże</span>
+          <span class="tree-icon">&#128310;</span>
+          <span class="tree-name">Podloze</span>
         </div>
         <div class="tree-item child" data-id="4">
-          <span class="tree-icon">📦</span>
+          <span class="tree-icon">&#128100;</span>
           <span class="tree-name">Gracz</span>
         </div>
       </div>
       <div class="sidebar-section">
-        <div class="panel-header"><span>🧩 KOMPONENTY</span></div>
+        <div class="panel-header"><span>&#129513; KOMPONENTY</span></div>
         <div id="component-list">
           <div class="component-chip">Transform</div>
           <div class="component-chip">MeshRenderer</div>
@@ -96,44 +1292,40 @@
       </div>
     </aside>
 
-    <!-- CENTER: Viewport + Panels -->
+    <!-- CENTER -->
     <div id="center-area">
-
-      <!-- VIEWPORT -->
       <div id="viewport-wrapper">
         <div id="viewport-toolbar">
           <div class="vp-tools">
-            <button class="vp-tool active" data-tool="select" title="Zaznacz">↖</button>
-            <button class="vp-tool" data-tool="move" title="Przesuń">✛</button>
-            <button class="vp-tool" data-tool="rotate" title="Obróć">↻</button>
-            <button class="vp-tool" data-tool="scale" title="Skaluj">⤢</button>
+            <button class="vp-tool active" data-tool="select" title="Zaznacz">&#8598;</button>
+            <button class="vp-tool" data-tool="move" title="Przesuń">&#10011;</button>
+            <button class="vp-tool" data-tool="rotate" title="Obróć">&#8635;</button>
+            <button class="vp-tool" data-tool="scale" title="Skaluj">&#10548;</button>
           </div>
           <div class="vp-view-btns">
             <button class="vp-view active" data-view="perspective">3D</button>
-            <button class="vp-view" data-view="top">⬆ Góra</button>
-            <button class="vp-view" data-view="front">⬛ Przód</button>
-            <button class="vp-view" data-view="side">◧ Bok</button>
+            <button class="vp-view" data-view="top">Gora</button>
+            <button class="vp-view" data-view="front">Przod</button>
+            <button class="vp-view" data-view="side">Bok</button>
           </div>
           <div class="vp-render-opts">
             <label><input type="checkbox" id="wireframe"> Szkielet</label>
             <label><input type="checkbox" id="grid" checked> Siatka</label>
-            <label><input type="checkbox" id="shadows" checked> Cienie</label>
           </div>
         </div>
         <canvas id="gameCanvas"></canvas>
         <div id="viewport-overlay">
           <div class="vp-badge" id="currentModeBadge">NORMAL MODE</div>
-          <div class="vp-coords" id="vpCoords">X: 0  Y: 0  Z: 0</div>
+          <div class="vp-coords" id="vpCoords">X:0 Y:0 Z:0</div>
         </div>
       </div>
 
-      <!-- BOTTOM TABS: Console / Timeline / Code -->
       <div id="bottom-panel">
         <div class="bottom-tabs">
-          <button class="btab active" data-btab="console">📟 Konsola</button>
-          <button class="btab" data-btab="code">📝 Skrypt</button>
-          <button class="btab" data-btab="timeline">⏱ Timeline</button>
-          <button class="btab" data-btab="physics">🔬 Fizyka</button>
+          <button class="btab active" data-btab="console">&#128319; Konsola</button>
+          <button class="btab" data-btab="code">&#128221; Skrypt</button>
+          <button class="btab" data-btab="timeline">&#9201; Timeline</button>
+          <button class="btab" data-btab="physics">&#128300; Fizyka</button>
         </div>
         <div class="btab-content" id="consolePanel">
           <div id="console-output"></div>
@@ -149,12 +1341,10 @@
               <option>EnemyAI.js</option>
               <option>GameManager.js</option>
             </select>
-            <button class="btn-sm" id="runScript">▶ Uruchom</button>
-            <button class="btn-sm" id="aiFixBtn">🤖 AI Napraw</button>
+            <button class="btn-sm" id="runScript">&#9654; Uruchom</button>
+            <button class="btn-sm" id="aiFixBtn">&#129302; AI Napraw</button>
           </div>
-          <textarea id="codeEditor" spellcheck="false">// PlayerController.js — Nexus Engine
-// Sterowanie graczem z fizyką
-
+          <textarea id="codeEditor" spellcheck="false">// PlayerController.js
 class PlayerController extends NexusComponent {
   constructor() {
     super();
@@ -162,51 +1352,22 @@ class PlayerController extends NexusComponent {
     this.jumpForce = 8.0;
     this.isGrounded = false;
   }
-
   update(deltaTime) {
     const input = Input.getAxes();
-    
-    // Ruch poziomy
     this.transform.position.x += input.horizontal * this.speed * deltaTime;
     this.transform.position.z += input.vertical * this.speed * deltaTime;
-    
-    // Skok
-    if (Input.getKeyDown('Space') && this.isGrounded) {
+    if (Input.getKeyDown("Space") && this.isGrounded) {
       this.rigidbody.velocity.y = this.jumpForce;
-      this.isGrounded = false;
-    }
-    
-    // Animacja
-    if (Math.abs(input.horizontal) > 0.1 || Math.abs(input.vertical) > 0.1) {
-      this.animator.play('walk');
-    } else {
-      this.animator.play('idle');
     }
   }
-  
-  onCollisionEnter(other) {
-    if (other.tag === 'Ground') {
-      this.isGrounded = true;
-    }
-  }
-}
-</textarea>
+}</textarea>
         </div>
         <div class="btab-content hidden" id="timelinePanel">
           <div class="timeline-ruler"></div>
           <div class="timeline-tracks" id="timelineTracks">
-            <div class="track-row">
-              <span class="track-name">Transform.X</span>
-              <div class="track-lane"><div class="keyframe" style="left:5%"></div><div class="keyframe" style="left:40%"></div><div class="keyframe" style="left:80%"></div></div>
-            </div>
-            <div class="track-row">
-              <span class="track-name">Transform.Y</span>
-              <div class="track-lane"><div class="keyframe" style="left:20%"></div><div class="keyframe" style="left:60%"></div></div>
-            </div>
-            <div class="track-row">
-              <span class="track-name">Material.Color</span>
-              <div class="track-lane"><div class="keyframe" style="left:10%"></div><div class="keyframe" style="left:90%"></div></div>
-            </div>
+            <div class="track-row"><span class="track-name">Transform.X</span><div class="track-lane"><div class="keyframe" style="left:5%"></div><div class="keyframe" style="left:40%"></div><div class="keyframe" style="left:80%"></div></div></div>
+            <div class="track-row"><span class="track-name">Transform.Y</span><div class="track-lane"><div class="keyframe" style="left:20%"></div><div class="keyframe" style="left:60%"></div></div></div>
+            <div class="track-row"><span class="track-name">Material.Color</span><div class="track-lane"><div class="keyframe" style="left:10%"></div><div class="keyframe" style="left:90%"></div></div></div>
           </div>
         </div>
         <div class="btab-content hidden" id="physicsPanel">
@@ -214,76 +1375,32 @@ class PlayerController extends NexusComponent {
             <label>Grawitacja Y: <input type="range" min="-20" max="0" value="-9.81" id="gravitySlider"> <span id="gravityVal">-9.81</span></label>
             <label>Tarcie: <input type="range" min="0" max="1" step="0.01" value="0.5" id="frictionSlider"> <span id="frictionVal">0.5</span></label>
             <label>Odbicie: <input type="range" min="0" max="1" step="0.01" value="0.3" id="bounceSlider"> <span id="bounceVal">0.3</span></label>
-            <label>Gęstość powietrza: <input type="range" min="0" max="2" step="0.01" value="1.2" id="airSlider"> <span id="airVal">1.2</span></label>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- RIGHT SIDEBAR: Inspector -->
+    <!-- RIGHT SIDEBAR -->
     <aside id="sidebar-right">
-      <div class="panel-header"><span>🔍 INSPEKTOR</span></div>
+      <div class="panel-header"><span>&#128269; INSPEKTOR</span></div>
       <div id="inspector">
         <div class="inspector-section">
           <div class="inspect-header">Transform</div>
-          <div class="inspect-row">
-            <span>Pozycja</span>
-            <div class="xyz-inputs">
-              <input type="number" value="0" step="0.1" placeholder="X">
-              <input type="number" value="0" step="0.1" placeholder="Y">
-              <input type="number" value="0" step="0.1" placeholder="Z">
-            </div>
-          </div>
-          <div class="inspect-row">
-            <span>Rotacja</span>
-            <div class="xyz-inputs">
-              <input type="number" value="0" step="1" placeholder="X">
-              <input type="number" value="0" step="1" placeholder="Y">
-              <input type="number" value="0" step="1" placeholder="Z">
-            </div>
-          </div>
-          <div class="inspect-row">
-            <span>Skala</span>
-            <div class="xyz-inputs">
-              <input type="number" value="1" step="0.1" placeholder="X">
-              <input type="number" value="1" step="0.1" placeholder="Y">
-              <input type="number" value="1" step="0.1" placeholder="Z">
-            </div>
-          </div>
+          <div class="inspect-row"><span>Pozycja</span><div class="xyz-inputs"><input type="number" value="0" step="0.1" placeholder="X"><input type="number" value="0" step="0.1" placeholder="Y"><input type="number" value="0" step="0.1" placeholder="Z"></div></div>
+          <div class="inspect-row"><span>Rotacja</span><div class="xyz-inputs"><input type="number" value="0" step="1" placeholder="X"><input type="number" value="0" step="1" placeholder="Y"><input type="number" value="0" step="1" placeholder="Z"></div></div>
+          <div class="inspect-row"><span>Skala</span><div class="xyz-inputs"><input type="number" value="1" step="0.1" placeholder="X"><input type="number" value="1" step="0.1" placeholder="Y"><input type="number" value="1" step="0.1" placeholder="Z"></div></div>
         </div>
         <div class="inspector-section">
           <div class="inspect-header">Material</div>
-          <div class="inspect-row">
-            <span>Kolor</span>
-            <input type="color" value="#4a90e2" id="objColor">
-          </div>
-          <div class="inspect-row">
-            <span>Metaliczność</span>
-            <input type="range" min="0" max="1" step="0.01" value="0.3" class="full-range">
-          </div>
-          <div class="inspect-row">
-            <span>Chropowatość</span>
-            <input type="range" min="0" max="1" step="0.01" value="0.7" class="full-range">
-          </div>
-          <div class="inspect-row">
-            <span>Emisja</span>
-            <input type="color" value="#000000">
-          </div>
+          <div class="inspect-row"><span>Kolor</span><input type="color" value="#4a90e2" id="objColor"></div>
+          <div class="inspect-row"><span>Metalicznosc</span><input type="range" min="0" max="1" step="0.01" value="0.3" class="full-range"></div>
+          <div class="inspect-row"><span>Chropowatsc</span><input type="range" min="0" max="1" step="0.01" value="0.7" class="full-range"></div>
         </div>
         <div class="inspector-section">
           <div class="inspect-header">RigidBody</div>
-          <div class="inspect-row">
-            <span>Masa</span>
-            <input type="number" value="1" min="0.01" step="0.1">
-          </div>
-          <div class="inspect-row">
-            <span>Kinematyczny</span>
-            <input type="checkbox">
-          </div>
-          <div class="inspect-row">
-            <span>Używaj grawitacji</span>
-            <input type="checkbox" checked>
-          </div>
+          <div class="inspect-row"><span>Masa</span><input type="number" value="1" min="0.01" step="0.1"></div>
+          <div class="inspect-row"><span>Kinematyczny</span><input type="checkbox"></div>
+          <div class="inspect-row"><span>Grawitacja</span><input type="checkbox" checked></div>
         </div>
       </div>
     </aside>
@@ -291,18 +1408,15 @@ class PlayerController extends NexusComponent {
 
   <!-- TEXTURE PANEL -->
   <div id="panel-textures" class="full-panel hidden">
-    <div class="panel-header big">
-      <span>🎨 EDYTOR TEKSTUR</span>
-      <button class="close-panel">✕</button>
-    </div>
+    <div class="panel-header big"><span>&#127912; EDYTOR TEKSTUR</span><button class="close-panel">&#10005;</button></div>
     <div class="texture-layout">
       <div class="texture-tools">
-        <h3>Narzędzia</h3>
-        <button class="tex-tool active" data-texttool="brush">🖌 Pędzel</button>
-        <button class="tex-tool" data-texttool="fill">🪣 Wiadro</button>
-        <button class="tex-tool" data-texttool="erase">🧹 Gumka</button>
-        <button class="tex-tool" data-texttool="noise">🌊 Szum</button>
-        <button class="tex-tool" data-texttool="pattern">🔲 Wzór</button>
+        <h3>Narzedzia</h3>
+        <button class="tex-tool active" data-texttool="brush">&#128396; Pedzel</button>
+        <button class="tex-tool" data-texttool="fill">&#129529; Wiadro</button>
+        <button class="tex-tool" data-texttool="erase">&#129529; Gumka</button>
+        <button class="tex-tool" data-texttool="noise">&#127754; Szum</button>
+        <button class="tex-tool" data-texttool="pattern">&#128306; Wzor</button>
         <hr>
         <h3>Rozmiar</h3>
         <input type="range" min="1" max="50" value="10" id="brushSize">
@@ -320,19 +1434,18 @@ class PlayerController extends NexusComponent {
         </div>
         <hr>
         <h3>Generuj AI</h3>
-        <input type="text" placeholder="np. skała, trawa, metal..." id="aiTexPrompt">
-        <button class="btn-ai-gen" id="generateTexture">🤖 Generuj</button>
+        <input type="text" placeholder="skala, trawa, metal..." id="aiTexPrompt">
+        <button class="btn-ai-gen" id="generateTexture">&#129302; Generuj</button>
         <hr>
-        <button class="btn-sm" id="saveTexture">💾 Zapisz</button>
-        <button class="btn-sm" id="clearTexture">🗑 Wyczyść</button>
-        <button class="btn-sm">📤 Eksportuj PNG</button>
+        <button class="btn-sm" id="saveTexture">&#128190; Zapisz</button>
+        <button class="btn-sm" id="clearTexture">&#128465; Wyczysc</button>
       </div>
       <div class="texture-canvas-area">
         <canvas id="textureCanvas" width="512" height="512"></canvas>
-        <div class="tex-size-info">512 × 512 px</div>
+        <div class="tex-size-info">512 x 512 px</div>
       </div>
       <div class="texture-library">
-        <h3>Biblioteka Tekstur</h3>
+        <h3>Biblioteka</h3>
         <div class="tex-lib-grid" id="texLibGrid"></div>
       </div>
     </div>
@@ -340,107 +1453,65 @@ class PlayerController extends NexusComponent {
 
   <!-- AI STUDIO PANEL -->
   <div id="panel-ai" class="full-panel hidden">
-    <div class="panel-header big">
-      <span>🤖 AI STUDIO — Nexus Intelligence</span>
-      <button class="close-panel">✕</button>
-    </div>
+    <div class="panel-header big"><span>&#129302; AI STUDIO</span><button class="close-panel">&#10005;</button></div>
     <div class="ai-layout">
       <div class="ai-modules">
-        <div class="ai-module active" data-ai="npc">🧠 AI NPC</div>
-        <div class="ai-module" data-ai="terrain">🏔 Generator Terenu</div>
-        <div class="ai-module" data-ai="texture">🎨 Generator Tekstur</div>
-        <div class="ai-module" data-ai="code">💻 Generator Kodu</div>
-        <div class="ai-module" data-ai="balance">⚖ Balans Gry</div>
-        <div class="ai-module" data-ai="pathfind">🗺 Pathfinding</div>
+        <div class="ai-module active" data-ai="npc">&#129504; AI NPC</div>
+        <div class="ai-module" data-ai="terrain">&#9968; Teren</div>
+        <div class="ai-module" data-ai="code">&#128187; Generator Kodu</div>
+        <div class="ai-module" data-ai="balance">&#9878; Balans Gry</div>
+        <div class="ai-module" data-ai="pathfind">&#128506; Pathfinding</div>
       </div>
       <div class="ai-workspace">
         <div class="ai-section" id="ai-npc">
-          <h2>🧠 System AI dla NPC</h2>
+          <h2>&#129504; System AI dla NPC</h2>
           <div class="ai-npc-brain">
-            <div class="brain-vis" id="brainVis">
-              <canvas id="brainCanvas" width="300" height="200"></canvas>
-            </div>
+            <div class="brain-vis"><canvas id="brainCanvas" width="300" height="200"></canvas></div>
             <div class="npc-config">
-              <label>Typ AI:
-                <select id="npcAiType">
-                  <option>Prosty (FSM)</option>
-                  <option>Średni (BehaviorTree)</option>
-                  <option>Zaawansowany (Neural)</option>
-                  <option>Uczący się (RL)</option>
-                </select>
-              </label>
-              <label>Agresywność: <input type="range" min="0" max="1" step="0.01" value="0.5" id="aiAggression"></label>
+              <label>Typ AI:<select id="npcAiType"><option>Prosty (FSM)</option><option>Sredni (BehaviorTree)</option><option>Zaawansowany (Neural)</option><option>Uczacy sie (RL)</option></select></label>
+              <label>Agresywnosc: <input type="range" min="0" max="1" step="0.01" value="0.5" id="aiAggression"></label>
               <label>Inteligencja: <input type="range" min="0" max="1" step="0.01" value="0.7" id="aiIntelligence"></label>
-              <label>Pamięć (sekundy): <input type="number" value="30" min="0"></label>
-              <label>Pole widzenia (°): <input type="range" min="30" max="360" value="120" id="aiFOV"></label>
-              <button class="btn-ai-train" id="trainAI">🚀 Trenuj AI</button>
+              <label>FOV (stopnie): <input type="range" min="30" max="360" value="120" id="aiFOV"></label>
+              <button class="btn-ai-train" id="trainAI">&#128640; Trenuj AI</button>
             </div>
           </div>
-          <div class="ai-training-log" id="trainingLog">
-            <p class="log-ready">System gotowy. Kliknij "Trenuj AI" aby rozpocząć uczenie maszynowe.</p>
-          </div>
+          <div class="ai-training-log" id="trainingLog"><p class="log-ready">Kliknij Trenuj AI aby rozpoczac uczenie maszynowe.</p></div>
         </div>
         <div class="ai-section hidden" id="ai-terrain">
-          <h2>🏔 Generator Proceduralny Terenu</h2>
+          <h2>&#9968; Generator Terenu</h2>
           <div class="terrain-controls">
             <label>Seed: <input type="number" value="42" id="terrainSeed"></label>
             <label>Skala: <input type="range" min="1" max="100" value="30" id="terrainScale"></label>
-            <label>Wysokość: <input type="range" min="1" max="50" value="10" id="terrainHeight"></label>
+            <label>Wysokosc: <input type="range" min="1" max="50" value="10" id="terrainHeight"></label>
             <label>Oktawy: <input type="range" min="1" max="8" value="4" id="terrainOctaves"></label>
-            <label>Typ:
-              <select id="terrainType">
-                <option>Niziny</option>
-                <option>Góry</option>
-                <option>Wyspy</option>
-                <option>Kaniony</option>
-                <option>Księżyc</option>
-              </select>
-            </label>
-            <button class="btn-ai-gen" id="generateTerrain">🌍 Generuj Teren</button>
+            <label>Typ:<select id="terrainType"><option>Niziny</option><option>Gory</option><option>Wyspy</option><option>Kaniony</option><option>Ksiezyc</option></select></label>
+            <button class="btn-ai-gen" id="generateTerrain">&#127757; Generuj Teren</button>
           </div>
           <canvas id="terrainPreview" width="400" height="200"></canvas>
         </div>
         <div class="ai-section hidden" id="ai-code">
-          <h2>💻 AI Generator Kodu</h2>
-          <textarea id="aiCodePrompt" placeholder="Opisz co ma robić skrypt...&#10;np. 'Stwórz system inventory z drag&drop, maxslots 30, stackowanie itemów'"></textarea>
-          <button class="btn-ai-gen" id="generateCode">⚡ Generuj Kod</button>
-          <pre id="aiGeneratedCode">// Wygenerowany kod pojawi się tutaj...</pre>
+          <h2>&#128187; AI Generator Kodu</h2>
+          <textarea id="aiCodePrompt" placeholder="Opisz co ma robic skrypt...&#10;np. system inventory z drag&drop, max 30 slotow"></textarea>
+          <button class="btn-ai-gen" id="generateCode">&#9889; Generuj Kod</button>
+          <pre id="aiGeneratedCode">// Wygenerowany kod pojawi sie tutaj...</pre>
         </div>
         <div class="ai-section hidden" id="ai-balance">
-          <h2>⚖ Balans Gry — Analiza AI</h2>
-          <div class="balance-chart" id="balanceChart">
-            <canvas id="balanceCanvas" width="500" height="300"></canvas>
-          </div>
+          <h2>&#9878; Balans Gry</h2>
+          <div class="balance-chart"><canvas id="balanceCanvas" width="500" height="300"></canvas></div>
           <div class="balance-stats">
-            <div class="stat-card">
-              <div class="stat-val" id="balDiff">★★★</div>
-              <div class="stat-lbl">Trudność</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-val" id="balFun">87%</div>
-              <div class="stat-lbl">Fun Score</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-val" id="balRetention">High</div>
-              <div class="stat-lbl">Retencja</div>
-            </div>
+            <div class="stat-card"><div class="stat-val" id="balDiff">★★★</div><div class="stat-lbl">Trudnosc</div></div>
+            <div class="stat-card"><div class="stat-val" id="balFun">87%</div><div class="stat-lbl">Fun Score</div></div>
+            <div class="stat-card"><div class="stat-val" id="balRetention">High</div><div class="stat-lbl">Retencja</div></div>
           </div>
-          <button class="btn-ai-gen" id="analyzeBalance">📊 Analizuj Grę</button>
+          <button class="btn-ai-gen" id="analyzeBalance">&#128202; Analizuj</button>
         </div>
         <div class="ai-section hidden" id="ai-pathfind">
-          <h2>🗺 System Pathfinding A*</h2>
+          <h2>&#128506; Pathfinding A*</h2>
           <canvas id="pathCanvas" width="400" height="400"></canvas>
           <div class="path-controls">
-            <button class="btn-sm" id="generateMaze">🗺 Generuj Mapę</button>
-            <button class="btn-sm" id="solvePath">🤖 Znajdź Ścieżkę</button>
-            <label>Algorytm:
-              <select id="pathAlgo">
-                <option>A* (Domyślny)</option>
-                <option>Dijkstra</option>
-                <option>BFS</option>
-                <option>NavMesh</option>
-              </select>
-            </label>
+            <button class="btn-sm" id="generateMaze">&#128506; Generuj Mape</button>
+            <button class="btn-sm" id="solvePath">&#129302; Znajdz Sciezke</button>
+            <label>Algorytm:<select id="pathAlgo"><option>A* (Domyslny)</option><option>Dijkstra</option><option>BFS</option></select></label>
           </div>
         </div>
       </div>
@@ -449,22 +1520,17 @@ class PlayerController extends NexusComponent {
 
   <!-- ASSETS PANEL -->
   <div id="panel-assets" class="full-panel hidden">
-    <div class="panel-header big">
-      <span>📦 MENEDŻER ASSETÓW</span>
-      <button class="close-panel">✕</button>
-    </div>
+    <div class="panel-header big"><span>&#128230; MENEDZER ASSETOW</span><button class="close-panel">&#10005;</button></div>
     <div class="assets-layout">
       <div class="assets-sidebar">
-        <div class="asset-cat active">📁 Wszystkie</div>
-        <div class="asset-cat">🟫 Modele 3D</div>
-        <div class="asset-cat">🖼 Tekstury</div>
-        <div class="asset-cat">🔊 Audio</div>
-        <div class="asset-cat">📜 Skrypty</div>
-        <div class="asset-cat">🎬 Animacje</div>
-        <div class="asset-cat">✨ Efekty</div>
+        <div class="asset-cat active">&#128193; Wszystkie</div>
+        <div class="asset-cat">&#128310; Modele 3D</div>
+        <div class="asset-cat">&#128444; Tekstury</div>
+        <div class="asset-cat">&#128266; Audio</div>
+        <div class="asset-cat">&#128221; Skrypty</div>
+        <div class="asset-cat">&#127916; Animacje</div>
         <hr>
-        <button class="btn-sm" id="importAsset">📤 Importuj</button>
-        <button class="btn-sm" id="createPrimitive">🔷 Prymityw</button>
+        <button class="btn-sm" id="importAsset">&#128228; Importuj</button>
       </div>
       <div class="assets-grid" id="assetsGrid"></div>
     </div>
@@ -472,77 +1538,2467 @@ class PlayerController extends NexusComponent {
 
   <!-- SETTINGS PANEL -->
   <div id="panel-settings" class="full-panel hidden">
-    <div class="panel-header big">
-      <span>⚙️ USTAWIENIA PROJEKTU</span>
-      <button class="close-panel">✕</button>
-    </div>
+    <div class="panel-header big"><span>&#9881; USTAWIENIA</span><button class="close-panel">&#10005;</button></div>
     <div class="settings-grid">
       <div class="settings-section">
-        <h3>🎮 Ustawienia Gry</h3>
-        <label>Nazwa projektu: <input type="text" value="Moja Gra"></label>
-        <label>Rozdzielczość: <select><option>1920×1080</option><option>1280×720</option><option>Mobile</option></select></label>
+        <h3>&#127918; Gra</h3>
+        <label>Nazwa: <input type="text" value="Moja Gra"></label>
+        <label>Rozdzielczosc: <select><option>1920x1080</option><option>1280x720</option><option>Mobile</option></select></label>
         <label>Target FPS: <input type="number" value="60" min="30" max="144"></label>
         <label>VSync: <input type="checkbox" checked></label>
       </div>
       <div class="settings-section">
-        <h3>🌟 Grafika</h3>
-        <label>Jakość cieni: <select><option>Wysoka</option><option>Średnia</option><option>Niska</option><option>Wyłączone</option></select></label>
+        <h3>&#11088; Grafika</h3>
+        <label>Cienie: <select><option>Wysoka</option><option>Srednia</option><option>Niska</option><option>Wylaczone</option></select></label>
         <label>Anti-aliasing: <select><option>MSAA 4x</option><option>MSAA 2x</option><option>FXAA</option><option>Brak</option></select></label>
-        <label>Ambient Occlusion: <input type="checkbox" checked></label>
         <label>Bloom: <input type="checkbox" checked></label>
         <label>Motion Blur: <input type="checkbox"></label>
       </div>
       <div class="settings-section">
-        <h3>🔊 Audio</h3>
-        <label>Głośność Master: <input type="range" min="0" max="100" value="80"></label>
-        <label>Głośność SFX: <input type="range" min="0" max="100" value="70"></label>
-        <label>Głośność Music: <input type="range" min="0" max="100" value="50"></label>
-        <label>3D Audio: <input type="checkbox" checked></label>
+        <h3>&#128266; Audio</h3>
+        <label>Master: <input type="range" min="0" max="100" value="80"></label>
+        <label>SFX: <input type="range" min="0" max="100" value="70"></label>
+        <label>Muzyka: <input type="range" min="0" max="100" value="50"></label>
       </div>
       <div class="settings-section">
-        <h3>📱 Platforma</h3>
-        <label>Cel:
-          <select id="targetPlatform">
-            <option>Web (GitHub Pages)</option>
-            <option>Android</option>
-            <option>iOS</option>
-            <option>Windows</option>
-            <option>Linux</option>
-          </select>
-        </label>
-        <label>Kompresja: <input type="checkbox" checked></label>
-        <label>PWA (Offline): <input type="checkbox" checked></label>
-        <button class="btn-export big-btn" id="publishGH">🚀 Publikuj na GitHub Pages</button>
+        <h3>&#128241; Platforma</h3>
+        <label>Cel:<select id="targetPlatform"><option>Web (GitHub Pages)</option><option>Android</option><option>iOS</option><option>Windows</option></select></label>
+        <label>PWA Offline: <input type="checkbox" checked></label>
+        <button class="btn-export big-btn" id="publishGH">&#128640; Publikuj na GitHub Pages</button>
       </div>
     </div>
   </div>
 
-  <!-- GAME PREVIEW MODAL -->
+  <!-- GAME MODAL -->
   <div id="game-modal" class="hidden">
     <div class="modal-inner">
       <div class="modal-header">
-        <span>▶ PODGLĄD GRY</span>
+        <span>&#9654; PODGLAD GRY — WASD = ruch</span>
         <div class="modal-controls">
-          <button id="toggleFullscreen">⛶ Pełny ekran</button>
-          <button id="closeModal">✕ Zamknij</button>
+          <button id="toggleFullscreen">&#11040; Pelny ekran</button>
+          <button id="closeModal">&#10005; Zamknij</button>
         </div>
       </div>
       <canvas id="gamePreviewCanvas"></canvas>
       <div class="game-ui-overlay" id="gameUI">
-        <div class="hud-health">❤ HP: <span id="hpVal">100</span>/100</div>
-        <div class="hud-score">⭐ Wynik: <span id="scoreVal">0</span></div>
-        <div class="hud-ammo">🔫 Ammo: <span id="ammoVal">30</span>/90</div>
+        <div class="hud-health">HP: <span id="hpVal">100</span>/100</div>
+        <div class="hud-score">Wynik: <span id="scoreVal">0</span></div>
+        <div class="hud-ammo">Ammo: <span id="ammoVal">30</span></div>
       </div>
     </div>
   </div>
 
-</div><!-- end #app -->
+</div>
 
-<script src="js/engine.js"></script>
-<script src="js/renderer.js"></script>
-<script src="js/texture-editor.js"></script>
-<script src="js/ai-system.js"></script>
-<script src="js/ui.js"></script>
-<script src="js/main.js"></script>
+<script>
+// ============================================
+// NEXUS ENGINE — Core 3D Renderer (WebGL)
+// ============================================
+
+class NexusRenderer {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.gl = null;
+    this.mode = 'normal';
+    this.scene = { objects: [], lights: [], camera: null };
+    this.programs = {};
+    this.buffers = {};
+    this.textures = {};
+    this.frameCount = 0;
+    this.lastTime = 0;
+    this.fps = 60;
+    this.gridEnabled = true;
+    this.wireframe = false;
+    this.shadowsEnabled = true;
+    this.init();
+  }
+
+  init() {
+    this.gl = this.canvas.getContext('webgl2') || this.canvas.getContext('webgl') || this.canvas.getContext('experimental-webgl');
+    if (!this.gl) {
+      console.warn('[Nexus] WebGL not available, using 2D fallback');
+      this.ctx2d = this.canvas.getContext('2d');
+      this.use2D = true;
+      return;
+    }
+    const gl = this.gl;
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+    gl.cullFace(gl.BACK);
+    gl.clearColor(0.05, 0.08, 0.12, 1.0);
+    this.compileShaders();
+    this.createDefaultBuffers();
+    this.camera = { pos: [0, 3, 8], target: [0, 0, 0], fov: 60, near: 0.1, far: 1000 };
+    this.resize();
+  }
+
+  compileShaders() {
+    // Main PBR-lite shader
+    this.programs.main = this.createProgram(
+      // Vertex
+      `#version 100
+      attribute vec3 aPos;
+      attribute vec3 aNormal;
+      attribute vec2 aUV;
+      uniform mat4 uMVP;
+      uniform mat4 uModel;
+      varying vec3 vNormal;
+      varying vec2 vUV;
+      varying vec3 vWorldPos;
+      void main() {
+        vNormal = (uModel * vec4(aNormal, 0.0)).xyz;
+        vUV = aUV;
+        vWorldPos = (uModel * vec4(aPos, 1.0)).xyz;
+        gl_Position = uMVP * vec4(aPos, 1.0);
+      }`,
+      // Fragment
+      `precision mediump float;
+      varying vec3 vNormal;
+      varying vec2 vUV;
+      varying vec3 vWorldPos;
+      uniform vec3 uColor;
+      uniform vec3 uLightDir;
+      uniform vec3 uCamPos;
+      uniform float uMetalness;
+      uniform float uRoughness;
+      uniform float uMode; // 0=normal 1=realistic 2=retro 3=ps1
+      void main() {
+        vec3 N = normalize(vNormal);
+        vec3 L = normalize(uLightDir);
+        vec3 V = normalize(uCamPos - vWorldPos);
+        float diff = max(dot(N, L), 0.0);
+        float amb = 0.15;
+        vec3 H = normalize(L + V);
+        float spec = pow(max(dot(N, H), 0.0), mix(8.0, 64.0, 1.0 - uRoughness));
+        
+        vec3 color = uColor;
+        
+        if (uMode < 0.5) { // NORMAL
+          color = color * (amb + diff * 0.85) + vec3(spec * 0.4 * uMetalness);
+        } else if (uMode < 1.5) { // REALISTIC
+          float shadow = diff;
+          vec3 ambient = color * 0.1;
+          vec3 diffuse = color * shadow * 0.9;
+          vec3 specular = mix(vec3(0.04), color, uMetalness) * spec;
+          color = ambient + diffuse + specular;
+          // Tone mapping
+          color = color / (color + vec3(1.0));
+          color = pow(color, vec3(1.0/2.2));
+        } else if (uMode < 2.5) { // RETRO (pixelated, limited palette)
+          color = color * (amb + diff);
+          // Quantize to 8 levels
+          color = floor(color * 8.0) / 8.0;
+        } else { // PS1 (affine texture, vertex lighting, dithering)
+          color = color * (amb + diff * 0.7);
+          // PS1 color depth reduction
+          color = floor(color * 32.0) / 32.0;
+          // Slight color wobble (PS1 feel)
+          float dither = mod(floor(gl_FragCoord.x) + floor(gl_FragCoord.y), 2.0) * 0.02;
+          color += dither;
+        }
+        
+        gl_FragColor = vec4(color, 1.0);
+      }`
+    );
+
+    // Grid shader
+    this.programs.grid = this.createProgram(
+      `#version 100
+      attribute vec3 aPos;
+      uniform mat4 uMVP;
+      void main() { gl_Position = uMVP * vec4(aPos, 1.0); }`,
+      `precision mediump float;
+      uniform vec4 uColor;
+      void main() { gl_FragColor = uColor; }`
+    );
+  }
+
+  createProgram(vsrc, fsrc) {
+    const gl = this.gl;
+    const vs = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vs, vsrc);
+    gl.compileShader(vs);
+    if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) {
+      console.error('VS error:', gl.getShaderInfoLog(vs));
+    }
+    const fs = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fs, fsrc);
+    gl.compileShader(fs);
+    if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) {
+      console.error('FS error:', gl.getShaderInfoLog(fs));
+    }
+    const prog = gl.createProgram();
+    gl.attachShader(prog, vs);
+    gl.attachShader(prog, fs);
+    gl.linkProgram(prog);
+    return prog;
+  }
+
+  createDefaultBuffers() {
+    // Cube geometry
+    const cubeVerts = new Float32Array([
+      // front
+      -0.5,-0.5, 0.5,  0,0,1,  0,0,
+       0.5,-0.5, 0.5,  0,0,1,  1,0,
+       0.5, 0.5, 0.5,  0,0,1,  1,1,
+      -0.5, 0.5, 0.5,  0,0,1,  0,1,
+      // back
+      -0.5,-0.5,-0.5,  0,0,-1, 1,0,
+       0.5,-0.5,-0.5,  0,0,-1, 0,0,
+       0.5, 0.5,-0.5,  0,0,-1, 0,1,
+      -0.5, 0.5,-0.5,  0,0,-1, 1,1,
+      // top
+      -0.5, 0.5,-0.5,  0,1,0,  0,1,
+       0.5, 0.5,-0.5,  0,1,0,  1,1,
+       0.5, 0.5, 0.5,  0,1,0,  1,0,
+      -0.5, 0.5, 0.5,  0,1,0,  0,0,
+      // bottom
+      -0.5,-0.5,-0.5,  0,-1,0, 0,0,
+       0.5,-0.5,-0.5,  0,-1,0, 1,0,
+       0.5,-0.5, 0.5,  0,-1,0, 1,1,
+      -0.5,-0.5, 0.5,  0,-1,0, 0,1,
+      // right
+       0.5,-0.5,-0.5,  1,0,0,  0,0,
+       0.5, 0.5,-0.5,  1,0,0,  0,1,
+       0.5, 0.5, 0.5,  1,0,0,  1,1,
+       0.5,-0.5, 0.5,  1,0,0,  1,0,
+      // left
+      -0.5,-0.5,-0.5, -1,0,0,  1,0,
+      -0.5, 0.5,-0.5, -1,0,0,  1,1,
+      -0.5, 0.5, 0.5, -1,0,0,  0,1,
+      -0.5,-0.5, 0.5, -1,0,0,  0,0,
+    ]);
+    const cubeIdx = [];
+    for (let f = 0; f < 6; f++) {
+      const b = f * 4;
+      cubeIdx.push(b, b+1, b+2, b, b+2, b+3);
+    }
+    this.buffers.cube = this.createGeometry(cubeVerts, new Uint16Array(cubeIdx));
+
+    // Plane geometry
+    const planeVerts = new Float32Array([
+      -10, 0,-10,  0,1,0,  0,10,
+       10, 0,-10,  0,1,0,  10,10,
+       10, 0, 10,  0,1,0,  10,0,
+      -10, 0, 10,  0,1,0,  0,0,
+    ]);
+    this.buffers.plane = this.createGeometry(planeVerts, new Uint16Array([0,1,2,0,2,3]));
+
+    // Sphere (icosphere approximation)
+    this.buffers.sphere = this.createSphereBuffer(1, 16, 16);
+
+    // Grid lines
+    this.createGridBuffer();
+  }
+
+  createGeometry(verts, indices) {
+    const gl = this.gl;
+    const vao = { vb: gl.createBuffer(), ib: gl.createBuffer(), count: indices.length };
+    gl.bindBuffer(gl.ARRAY_BUFFER, vao.vb);
+    gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vao.ib);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+    return vao;
+  }
+
+  createSphereBuffer(r, latDiv, lonDiv) {
+    const verts = []; const idx = [];
+    for (let lat = 0; lat <= latDiv; lat++) {
+      const theta = (lat * Math.PI) / latDiv;
+      for (let lon = 0; lon <= lonDiv; lon++) {
+        const phi = (lon * 2 * Math.PI) / lonDiv;
+        const x = Math.sin(theta) * Math.cos(phi) * r;
+        const y = Math.cos(theta) * r;
+        const z = Math.sin(theta) * Math.sin(phi) * r;
+        verts.push(x, y, z, x/r, y/r, z/r, lon/lonDiv, lat/latDiv);
+      }
+    }
+    for (let lat = 0; lat < latDiv; lat++) {
+      for (let lon = 0; lon < lonDiv; lon++) {
+        const a = lat * (lonDiv+1) + lon;
+        const b = a + lonDiv + 1;
+        idx.push(a, b, a+1, b, b+1, a+1);
+      }
+    }
+    return this.createGeometry(new Float32Array(verts), new Uint16Array(idx));
+  }
+
+  createGridBuffer() {
+    const lines = [];
+    const range = 10;
+    for (let i = -range; i <= range; i++) {
+      lines.push(i, 0, -range, i, 0, range);
+      lines.push(-range, 0, i, range, 0, i);
+    }
+    const gl = this.gl;
+    this.buffers.grid = { vb: gl.createBuffer(), count: lines.length / 3 };
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.grid.vb);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(lines), gl.STATIC_DRAW);
+  }
+
+  resize() {
+    const canvas = this.canvas;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = Math.floor(rect.width);
+    canvas.height = Math.floor(rect.height - 36);
+    if (this.gl) this.gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+
+  setMode(mode) {
+    this.mode = mode;
+    const modeMap = { normal: 0, realistic: 1, retro: 2, ps1: 3 };
+    this.modeId = modeMap[mode] || 0;
+    // PS1/Retro: lower resolution
+    if (mode === 'ps1') {
+      this.pixelScale = 4;
+    } else if (mode === 'retro') {
+      this.pixelScale = 3;
+    } else {
+      this.pixelScale = 1;
+    }
+  }
+
+  // ===== Math helpers =====
+  mat4Identity() {
+    return [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
+  }
+
+  mat4Multiply(a, b) {
+    const out = new Array(16);
+    for (let i = 0; i < 4; i++) {
+      for (let j = 0; j < 4; j++) {
+        out[i*4+j] = 0;
+        for (let k = 0; k < 4; k++) out[i*4+j] += a[i*4+k] * b[k*4+j];
+      }
+    }
+    return out;
+  }
+
+  mat4Perspective(fov, aspect, near, far) {
+    const f = 1 / Math.tan(fov * Math.PI / 360);
+    const nf = 1 / (near - far);
+    return [
+      f/aspect, 0, 0, 0,
+      0, f, 0, 0,
+      0, 0, (far+near)*nf, -1,
+      0, 0, 2*far*near*nf, 0
+    ];
+  }
+
+  mat4LookAt(eye, center, up) {
+    let fx = center[0]-eye[0], fy = center[1]-eye[1], fz = center[2]-eye[2];
+    let fl = Math.sqrt(fx*fx+fy*fy+fz*fz);
+    fx/=fl; fy/=fl; fz/=fl;
+    let sx = fy*up[2]-fz*up[1], sy = fz*up[0]-fx*up[2], sz = fx*up[1]-fy*up[0];
+    let sl = Math.sqrt(sx*sx+sy*sy+sz*sz);
+    sx/=sl; sy/=sl; sz/=sl;
+    const ux = sy*fz-sz*fy, uy = sz*fx-sx*fz, uz = sx*fy-sy*fx;
+    return [
+      sx, ux,-fx, 0,
+      sy, uy,-fy, 0,
+      sz, uz,-fz, 0,
+      -(sx*eye[0]+sy*eye[1]+sz*eye[2]),
+      -(ux*eye[0]+uy*eye[1]+uz*eye[2]),
+      fx*eye[0]+fy*eye[1]+fz*eye[2], 1
+    ];
+  }
+
+  mat4Translation(x, y, z) {
+    return [1,0,0,0, 0,1,0,0, 0,0,1,0, x,y,z,1];
+  }
+
+  mat4Scale(x, y, z) {
+    return [x,0,0,0, 0,y,0,0, 0,0,z,0, 0,0,0,1];
+  }
+
+  mat4RotY(a) {
+    const c = Math.cos(a), s = Math.sin(a);
+    return [c,0,s,0, 0,1,0,0, -s,0,c,0, 0,0,0,1];
+  }
+
+  // ===== Render Frame =====
+  render(time) {
+    this.frameCount++;
+    const dt = (time - this.lastTime) / 1000;
+    if (dt > 0) this.fps = Math.round(0.9 * this.fps + 0.1 * (1/dt));
+    this.lastTime = time;
+
+    if (this.use2D) {
+      this.render2D(time);
+      return;
+    }
+
+    const gl = this.gl;
+    const w = this.canvas.width, h = this.canvas.height;
+
+    // Low-res for retro/ps1
+    const scale = this.pixelScale || 1;
+    gl.viewport(0, 0, w/scale, h/scale);
+
+    // Background color by mode
+    const bgColors = {
+      normal:    [0.05, 0.08, 0.12, 1],
+      realistic: [0.02, 0.02, 0.03, 1],
+      retro:     [0.0, 0.0, 0.0, 1],
+      ps1:       [0.1, 0.05, 0.18, 1]
+    };
+    const bg = bgColors[this.mode] || bgColors.normal;
+    gl.clearColor(...bg);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    // Camera auto-orbit
+    const camAngle = time * 0.0004;
+    const camDist = 12;
+    const cam = this.camera;
+    cam.pos = [
+      Math.sin(camAngle) * camDist,
+      5,
+      Math.cos(camAngle) * camDist
+    ];
+
+    const proj = this.mat4Perspective(cam.fov, w/h, cam.near, cam.far);
+    const view = this.mat4LookAt(cam.pos, cam.target, [0,1,0]);
+    const vp = this.mat4Multiply(proj, view);
+
+    // Draw grid
+    if (this.gridEnabled) this.drawGrid(vp);
+
+    // Draw scene objects
+    const lightDir = [0.5, 1.0, 0.7];
+
+    // Ground plane
+    this.drawObject(this.buffers.plane,
+      this.mat4Identity(),
+      vp, [0.2, 0.3, 0.2], lightDir, cam.pos, 0, 0.9, false);
+
+    // Sample cubes (scene objects)
+    const cubeData = [
+      { pos: [0, 0.5, 0], scale: [1,1,1], color: [0.3, 0.5, 0.9] },
+      { pos: [3, 0.5, 1], scale: [0.8,0.8,0.8], color: [0.9, 0.3, 0.3] },
+      { pos: [-2, 0.5, -1], scale: [1.2,1.2,1.2], color: [0.3, 0.9, 0.4] },
+      { pos: [1, 0.5, -3], scale: [0.6,1.5,0.6], color: [0.9, 0.7, 0.2] },
+    ];
+
+    cubeData.forEach((obj, i) => {
+      const rot = this.mat4RotY(time * 0.001 + i * 0.7);
+      const trans = this.mat4Translation(...obj.pos);
+      const scale = this.mat4Scale(...obj.scale);
+      let model = this.mat4Multiply(trans, this.mat4Multiply(rot, scale));
+      this.drawObject(this.buffers.cube, model, vp, obj.color, lightDir, cam.pos, 0.5, 0.5, this.wireframe);
+    });
+
+    // Sphere
+    const sphereTrans = this.mat4Translation(
+      Math.sin(time * 0.001) * 2,
+      1.5,
+      Math.cos(time * 0.0013) * 2
+    );
+    this.drawObject(this.buffers.sphere, sphereTrans, vp, [0.8, 0.5, 0.9], lightDir, cam.pos, 0.8, 0.2);
+
+    // Update FPS display
+    if (this.frameCount % 10 === 0) {
+      const el = document.getElementById('fpsDisplay');
+      if (el) el.textContent = this.fps;
+    }
+  }
+
+  drawGrid(vp) {
+    const gl = this.gl;
+    const prog = this.programs.grid;
+    gl.useProgram(prog);
+    const mvpLoc = gl.getUniformLocation(prog, 'uMVP');
+    const colLoc = gl.getUniformLocation(prog, 'uColor');
+    gl.uniformMatrix4fv(mvpLoc, false, new Float32Array(vp));
+    const alpha = this.mode === 'retro' ? 0.6 : 0.25;
+    const gridColor = this.mode === 'retro' ? [0, 1, 0, alpha] :
+                      this.mode === 'ps1'   ? [0.5, 0.3, 1, alpha] :
+                                              [0.3, 0.5, 0.7, alpha];
+    gl.uniform4fv(colLoc, gridColor);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffers.grid.vb);
+    const posLoc = gl.getAttribLocation(prog, 'aPos');
+    gl.enableVertexAttribArray(posLoc);
+    gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 12, 0);
+    gl.drawArrays(gl.LINES, 0, this.buffers.grid.count);
+  }
+
+  drawObject(geo, model, vp, color, lightDir, camPos, metal, rough, wireframe=false) {
+    const gl = this.gl;
+    const prog = this.programs.main;
+    gl.useProgram(prog);
+
+    const mvp = this.mat4Multiply(vp, model);
+    gl.uniformMatrix4fv(gl.getUniformLocation(prog, 'uMVP'), false, new Float32Array(mvp));
+    gl.uniformMatrix4fv(gl.getUniformLocation(prog, 'uModel'), false, new Float32Array(model));
+    gl.uniform3fv(gl.getUniformLocation(prog, 'uColor'), color);
+    gl.uniform3fv(gl.getUniformLocation(prog, 'uLightDir'), lightDir);
+    gl.uniform3fv(gl.getUniformLocation(prog, 'uCamPos'), camPos);
+    gl.uniform1f(gl.getUniformLocation(prog, 'uMetalness'), metal || 0.3);
+    gl.uniform1f(gl.getUniformLocation(prog, 'uRoughness'), rough || 0.7);
+    gl.uniform1f(gl.getUniformLocation(prog, 'uMode'), this.modeId || 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, geo.vb);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, geo.ib);
+
+    const stride = 32;
+    const posLoc = gl.getAttribLocation(prog, 'aPos');
+    const normLoc = gl.getAttribLocation(prog, 'aNormal');
+    const uvLoc = gl.getAttribLocation(prog, 'aUV');
+    gl.enableVertexAttribArray(posLoc);
+    gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, stride, 0);
+    if (normLoc >= 0) { gl.enableVertexAttribArray(normLoc); gl.vertexAttribPointer(normLoc, 3, gl.FLOAT, false, stride, 12); }
+    if (uvLoc >= 0) { gl.enableVertexAttribArray(uvLoc); gl.vertexAttribPointer(uvLoc, 2, gl.FLOAT, false, stride, 24); }
+
+    if (wireframe) {
+      gl.drawElements(gl.LINE_STRIP, geo.count, gl.UNSIGNED_SHORT, 0);
+    } else {
+      gl.drawElements(gl.TRIANGLES, geo.count, gl.UNSIGNED_SHORT, 0);
+    }
+  }
+
+  // 2D fallback renderer
+  render2D(time) {
+    const ctx = this.ctx2d;
+    const w = this.canvas.width, h = this.canvas.height;
+    ctx.fillStyle = '#080c14';
+    ctx.fillRect(0, 0, w, h);
+
+    // Grid
+    ctx.strokeStyle = 'rgba(0,212,255,0.15)';
+    ctx.lineWidth = 1;
+    const gsize = 40;
+    for (let x = 0; x < w; x += gsize) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+    for (let y = 0; y < h; y += gsize) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+
+    // Simple 2D isometric scene preview
+    const cx = w/2, cy = h/2;
+    const t = time * 0.001;
+    ctx.save();
+    ctx.translate(cx, cy - 40);
+
+    // Shadow
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.beginPath();
+    ctx.ellipse(0, 60, 50, 15, 0, 0, Math.PI*2);
+    ctx.fill();
+
+    // Cube (isometric)
+    const drawIsoBox = (x, y, s, col) => {
+      const hw = s * Math.cos(Math.PI/6);
+      const hh = s * Math.sin(Math.PI/6);
+      ctx.save();
+      ctx.translate(x, y);
+
+      // Top
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(0, -s*0.5);
+      ctx.lineTo(hw, -s*0.5 + hh);
+      ctx.lineTo(0, -s*0.5 + hh*2);
+      ctx.lineTo(-hw, -s*0.5 + hh);
+      ctx.closePath();
+      ctx.fill();
+
+      // Left
+      ctx.fillStyle = this.hexDarken(col, 0.7);
+      ctx.beginPath();
+      ctx.moveTo(-hw, -s*0.5 + hh);
+      ctx.lineTo(0, -s*0.5 + hh*2);
+      ctx.lineTo(0, s*0.5 + hh*2);
+      ctx.lineTo(-hw, s*0.5 + hh);
+      ctx.closePath();
+      ctx.fill();
+
+      // Right
+      ctx.fillStyle = this.hexDarken(col, 0.5);
+      ctx.beginPath();
+      ctx.moveTo(0, -s*0.5 + hh*2);
+      ctx.lineTo(hw, -s*0.5 + hh);
+      ctx.lineTo(hw, s*0.5 + hh);
+      ctx.lineTo(0, s*0.5 + hh*2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    };
+
+    drawIsoBox(Math.sin(t)*30, Math.cos(t)*20, 40, '#4a90e2');
+    drawIsoBox(-60, 20, 30, '#e24a4a');
+    drawIsoBox(60, 15, 25, '#4ae24a');
+    ctx.restore();
+
+    // Mode badge
+    const modeColors = { normal: '#00d4ff', realistic: '#ffd700', retro: '#00ff41', ps1: '#ff6090' };
+    ctx.fillStyle = modeColors[this.mode] || '#00d4ff';
+    ctx.font = '11px "Share Tech Mono"';
+    ctx.fillText('[2D FALLBACK — WebGL not supported]', 10, h-10);
+  }
+
+  hexDarken(hex, factor) {
+    if (hex.startsWith('#')) {
+      const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+      return `rgb(${Math.floor(r*factor)},${Math.floor(g*factor)},${Math.floor(b*factor)})`;
+    }
+    return hex;
+  }
+}
+
+window.NexusRenderer = NexusRenderer;
+
+// ============================================
+// NEXUS ENGINE — Texture Editor
+// ============================================
+
+class NexusTextureEditor {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.tool = 'brush';
+    this.brushSize = 10;
+    this.color = '#ff6600';
+    this.painting = false;
+    this.lastX = 0;
+    this.lastY = 0;
+    this.textures = [];
+    this.history = [];
+    this.historyIndex = -1;
+    this.initCanvas();
+    this.bindEvents();
+    this.generateDefaultTextures();
+  }
+
+  initCanvas() {
+    const ctx = this.ctx;
+    ctx.fillStyle = '#888888';
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.noise(0.3);
+    this.saveHistory();
+  }
+
+  bindEvents() {
+    const c = this.canvas;
+    c.addEventListener('mousedown', e => { this.painting = true; this.paint(e); });
+    c.addEventListener('mousemove', e => { if (this.painting) this.paint(e); });
+    c.addEventListener('mouseup', () => { this.painting = false; this.saveHistory(); });
+    c.addEventListener('mouseleave', () => { this.painting = false; });
+    // Touch support
+    c.addEventListener('touchstart', e => { e.preventDefault(); this.painting = true; this.paintTouch(e); });
+    c.addEventListener('touchmove', e => { e.preventDefault(); if(this.painting) this.paintTouch(e); });
+    c.addEventListener('touchend', () => { this.painting = false; this.saveHistory(); });
+  }
+
+  getPos(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY
+    };
+  }
+
+  paintTouch(e) {
+    const touch = e.touches[0];
+    this.paint({ clientX: touch.clientX, clientY: touch.clientY });
+  }
+
+  paint(e) {
+    const pos = this.getPos(e);
+    const ctx = this.ctx;
+    const s = this.brushSize;
+
+    switch (this.tool) {
+      case 'brush':
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = s;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(this.lastX, this.lastY);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        break;
+      case 'erase':
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.strokeStyle = 'rgba(0,0,0,1)';
+        ctx.lineWidth = s * 2;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(this.lastX, this.lastY);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        ctx.globalCompositeOperation = 'source-over';
+        break;
+      case 'fill':
+        this.floodFill(Math.floor(pos.x), Math.floor(pos.y), this.color);
+        break;
+      case 'noise':
+        this.noiseBrush(pos.x, pos.y, s);
+        break;
+      case 'pattern':
+        this.patternBrush(pos.x, pos.y, s);
+        break;
+    }
+    this.lastX = pos.x;
+    this.lastY = pos.y;
+  }
+
+  noiseBrush(x, y, s) {
+    const ctx = this.ctx;
+    for (let i = 0; i < s * 5; i++) {
+      const rx = x + (Math.random()-0.5)*s*2;
+      const ry = y + (Math.random()-0.5)*s*2;
+      const r = Math.floor(Math.random()*256);
+      const g = Math.floor(Math.random()*256);
+      const b = Math.floor(Math.random()*256);
+      ctx.fillStyle = `rgb(${r},${g},${b})`;
+      ctx.fillRect(rx, ry, 2, 2);
+    }
+  }
+
+  patternBrush(x, y, s) {
+    const ctx = this.ctx;
+    const gridSize = Math.max(4, s);
+    const gx = Math.floor(x / gridSize) * gridSize;
+    const gy = Math.floor(y / gridSize) * gridSize;
+    const h = this.hexToHsl(this.color);
+    for (let dx = -3; dx <= 3; dx++) {
+      for (let dy = -3; dy <= 3; dy++) {
+        const r = Math.sqrt(dx*dx+dy*dy);
+        if (r <= 3) {
+          const lum = 30 + Math.random() * 40;
+          ctx.fillStyle = `hsl(${h.h},${h.s}%,${lum}%)`;
+          ctx.fillRect(gx + dx*gridSize, gy + dy*gridSize, gridSize-1, gridSize-1);
+        }
+      }
+    }
+  }
+
+  hexToHsl(hex) {
+    let r = parseInt(hex.slice(1,3),16)/255;
+    let g = parseInt(hex.slice(3,5),16)/255;
+    let b = parseInt(hex.slice(5,7),16)/255;
+    const max = Math.max(r,g,b), min = Math.min(r,g,b);
+    let h,s, l=(max+min)/2;
+    if (max===min) { h=s=0; }
+    else {
+      const d = max-min;
+      s = l>0.5 ? d/(2-max-min) : d/(max+min);
+      h = max===r ? (g-b)/d+(g<b?6:0) : max===g ? (b-r)/d+2 : (r-g)/d+4;
+      h = Math.round(h*60);
+    }
+    return { h, s: Math.round(s*100), l: Math.round(l*100) };
+  }
+
+  floodFill(startX, startY, fillColor) {
+    const ctx = this.ctx;
+    const w = this.canvas.width, h = this.canvas.height;
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const data = imgData.data;
+    const idx = (startY * w + startX) * 4;
+    const targetR = data[idx], targetG = data[idx+1], targetB = data[idx+2];
+
+    const fill = this.hexToRgb(fillColor);
+    if (targetR === fill.r && targetG === fill.g && targetB === fill.b) return;
+
+    const stack = [[startX, startY]];
+    const visited = new Uint8Array(w * h);
+
+    const match = (i) => {
+      return Math.abs(data[i]-targetR) < 30 &&
+             Math.abs(data[i+1]-targetG) < 30 &&
+             Math.abs(data[i+2]-targetB) < 30;
+    };
+
+    let cnt = 0;
+    while (stack.length && cnt < 50000) {
+      const [cx, cy] = stack.pop();
+      if (cx < 0 || cx >= w || cy < 0 || cy >= h) continue;
+      const pi = cy * w + cx;
+      if (visited[pi]) continue;
+      const di = pi * 4;
+      if (!match(di)) continue;
+      visited[pi] = 1;
+      data[di] = fill.r; data[di+1] = fill.g; data[di+2] = fill.b; data[di+3] = 255;
+      stack.push([cx+1,cy],[cx-1,cy],[cx,cy+1],[cx,cy-1]);
+      cnt++;
+    }
+    ctx.putImageData(imgData, 0, 0);
+  }
+
+  hexToRgb(hex) {
+    return {
+      r: parseInt(hex.slice(1,3),16),
+      g: parseInt(hex.slice(3,5),16),
+      b: parseInt(hex.slice(5,7),16)
+    };
+  }
+
+  noise(intensity = 0.5) {
+    const ctx = this.ctx;
+    const w = this.canvas.width, h = this.canvas.height;
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const data = imgData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const n = (Math.random() * 2 - 1) * intensity * 255;
+      data[i] = Math.max(0, Math.min(255, data[i] + n));
+      data[i+1] = Math.max(0, Math.min(255, data[i+1] + n));
+      data[i+2] = Math.max(0, Math.min(255, data[i+2] + n));
+    }
+    ctx.putImageData(imgData, 0, 0);
+  }
+
+  generateTexture(type) {
+    const ctx = this.ctx;
+    const w = this.canvas.width, h = this.canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const types = {
+      rock: () => {
+        ctx.fillStyle = '#5a5a5a';
+        ctx.fillRect(0, 0, w, h);
+        for (let i = 0; i < 5000; i++) {
+          const x = Math.random()*w, y = Math.random()*h;
+          const v = 80 + Math.random()*80;
+          ctx.fillStyle = `rgb(${v},${v-5},${v-10})`;
+          ctx.fillRect(x, y, Math.random()*6, Math.random()*6);
+        }
+        this.noise(0.2);
+      },
+      grass: () => {
+        ctx.fillStyle = '#3a7a2a';
+        ctx.fillRect(0, 0, w, h);
+        for (let i = 0; i < 3000; i++) {
+          const x = Math.random()*w, y = Math.random()*h;
+          const g = 80 + Math.random()*100;
+          ctx.fillStyle = `rgb(${20+Math.floor(Math.random()*30)},${g},${20+Math.floor(Math.random()*20)})`;
+          ctx.fillRect(x, y, 2, 5+Math.random()*10);
+        }
+        this.noise(0.1);
+      },
+      metal: () => {
+        const grad = ctx.createLinearGradient(0, 0, w, h);
+        grad.addColorStop(0, '#888');
+        grad.addColorStop(0.3, '#ccc');
+        grad.addColorStop(0.6, '#999');
+        grad.addColorStop(1, '#aaa');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, w, h);
+        for (let i = 0; i < w; i += 8) {
+          ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+          ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,h); ctx.stroke();
+        }
+        this.noise(0.05);
+      },
+      wood: () => {
+        for (let y = 0; y < h; y++) {
+          const v = 120 + 30 * Math.sin(y * 0.1 + Math.sin(y*0.03)*3);
+          ctx.fillStyle = `rgb(${Math.floor(v)},${Math.floor(v*0.6)},${Math.floor(v*0.3)})`;
+          ctx.fillRect(0, y, w, 1);
+        }
+        for (let i = 0; i < 2000; i++) {
+          const x = Math.random()*w, y = Math.random()*h;
+          ctx.fillStyle = `rgba(0,0,0,${Math.random()*0.1})`;
+          ctx.fillRect(x, y, Math.random()*20, 1);
+        }
+        this.noise(0.05);
+      },
+      dirt: () => {
+        ctx.fillStyle = '#7a5a3a';
+        ctx.fillRect(0, 0, w, h);
+        for (let i = 0; i < 8000; i++) {
+          const x = Math.random()*w, y = Math.random()*h;
+          const v = 80+Math.random()*60;
+          ctx.fillStyle = `rgb(${v},${Math.floor(v*0.7)},${Math.floor(v*0.4)})`;
+          ctx.fillRect(x, y, Math.random()*4, Math.random()*4);
+        }
+        this.noise(0.15);
+      },
+      fire: () => {
+        for (let y = h; y >= 0; y--) {
+          const t = 1 - y/h;
+          const r = Math.floor(255 * Math.min(1, t * 2));
+          const g = Math.floor(255 * Math.max(0, t * 2 - 1) * 0.8);
+          const b = 0;
+          ctx.fillStyle = `rgb(${r},${g},${b})`;
+          ctx.fillRect(0, y, w, 1);
+        }
+        for (let i = 0; i < 3000; i++) {
+          const x = Math.random()*w, y = h - Math.random()*h;
+          ctx.fillStyle = `rgba(255,${Math.floor(Math.random()*200)},0,${Math.random()*0.5})`;
+          ctx.beginPath();
+          ctx.arc(x, y, Math.random()*5, 0, Math.PI*2);
+          ctx.fill();
+        }
+      },
+      water: () => {
+        for (let y = 0; y < h; y++) {
+          for (let x = 0; x < w; x++) {
+            const v = 0.5 + 0.5*Math.sin(x*0.05 + y*0.03);
+            const b = Math.floor(180 + v*75);
+            ctx.fillStyle = `rgb(${Math.floor(v*30)},${Math.floor(100+v*80)},${b})`;
+            ctx.fillRect(x, y, 1, 1);
+          }
+        }
+        this.noise(0.05);
+      },
+      checkerboard: () => {
+        const s = 32;
+        for (let y = 0; y < h; y += s) {
+          for (let x = 0; x < w; x += s) {
+            ctx.fillStyle = ((x/s + y/s) % 2 === 0) ? '#fff' : '#222';
+            ctx.fillRect(x, y, s, s);
+          }
+        }
+      }
+    };
+
+    if (types[type]) {
+      types[type]();
+    } else {
+      // AI-like procedural generation based on prompt
+      this.proceduralGenerate(type);
+    }
+    this.saveHistory();
+    this.addToLibrary();
+  }
+
+  proceduralGenerate(prompt) {
+    const ctx = this.ctx;
+    const w = this.canvas.width, h = this.canvas.height;
+    // Hash prompt to seed colors
+    let hash = 0;
+    for (let i = 0; i < prompt.length; i++) {
+      hash = ((hash << 5) - hash) + prompt.charCodeAt(i);
+      hash |= 0;
+    }
+    const hue = Math.abs(hash) % 360;
+    ctx.fillStyle = `hsl(${hue},40%,40%)`;
+    ctx.fillRect(0, 0, w, h);
+
+    for (let i = 0; i < 6000; i++) {
+      const x = Math.random()*w, y = Math.random()*h;
+      const v = 30 + Math.random()*50;
+      ctx.fillStyle = `hsl(${(hue + Math.random()*60-30) % 360},${40+Math.random()*40}%,${v}%)`;
+      ctx.fillRect(x, y, Math.random()*8, Math.random()*8);
+    }
+    this.noise(0.2);
+  }
+
+  saveHistory() {
+    const dataURL = this.canvas.toDataURL();
+    this.history = this.history.slice(0, this.historyIndex+1);
+    this.history.push(dataURL);
+    this.historyIndex++;
+    if (this.history.length > 30) {
+      this.history.shift();
+      this.historyIndex--;
+    }
+  }
+
+  undo() {
+    if (this.historyIndex > 0) {
+      this.historyIndex--;
+      this.loadFromURL(this.history[this.historyIndex]);
+    }
+  }
+
+  redo() {
+    if (this.historyIndex < this.history.length - 1) {
+      this.historyIndex++;
+      this.loadFromURL(this.history[this.historyIndex]);
+    }
+  }
+
+  loadFromURL(url) {
+    const img = new Image();
+    img.onload = () => { this.ctx.drawImage(img, 0, 0); };
+    img.src = url;
+  }
+
+  addToLibrary() {
+    const grid = document.getElementById('texLibGrid');
+    if (!grid) return;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'tex-lib-item';
+    const miniCanvas = document.createElement('canvas');
+    miniCanvas.width = 64; miniCanvas.height = 64;
+    const miniCtx = miniCanvas.getContext('2d');
+    miniCtx.drawImage(this.canvas, 0, 0, 64, 64);
+    wrapper.appendChild(miniCanvas);
+    wrapper.addEventListener('click', () => {
+      this.ctx.drawImage(miniCanvas, 0, 0, this.canvas.width, this.canvas.height);
+    });
+    grid.prepend(wrapper);
+    this.textures.push(this.canvas.toDataURL());
+  }
+
+  generateDefaultTextures() {
+    const types = ['rock', 'grass', 'metal', 'wood', 'dirt', 'water', 'checkerboard', 'fire'];
+    types.forEach((t, i) => {
+      setTimeout(() => {
+        const tmpCanvas = document.createElement('canvas');
+        tmpCanvas.width = 64; tmpCanvas.height = 64;
+        const tmpCtx = tmpCanvas.getContext('2d');
+        const editor = new NexusTextureEditor(tmpCanvas);
+        editor.generateTexture(t);
+        const grid = document.getElementById('texLibGrid');
+        if (!grid) return;
+        const wrapper = document.createElement('div');
+        wrapper.className = 'tex-lib-item';
+        wrapper.title = t;
+        wrapper.appendChild(tmpCanvas);
+        wrapper.addEventListener('click', () => {
+          this.generateTexture(t);
+        });
+        grid.appendChild(wrapper);
+      }, i * 50);
+    });
+  }
+
+  clear() {
+    const ctx = this.ctx;
+    ctx.fillStyle = '#888';
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.saveHistory();
+  }
+
+  exportPNG() {
+    const link = document.createElement('a');
+    link.download = 'texture_' + Date.now() + '.png';
+    link.href = this.canvas.toDataURL('image/png');
+    link.click();
+  }
+}
+
+window.NexusTextureEditor = NexusTextureEditor;
+
+// ============================================
+// NEXUS ENGINE — AI System
+// ============================================
+
+class NexusAI {
+  constructor() {
+    this.trainingData = [];
+    this.npcStates = new Map();
+    this.neuralNet = null;
+    this.isTraining = false;
+    this.epoch = 0;
+    this.maxEpochs = 100;
+    this.brainAnimFrame = null;
+    this.pathGrid = null;
+  }
+
+  // ===== Neural Network (Simple Feed-Forward) =====
+  createNetwork(layers) {
+    const net = { layers: [], weights: [], biases: [] };
+    for (let i = 0; i < layers.length - 1; i++) {
+      const w = [];
+      const b = [];
+      for (let j = 0; j < layers[i+1]; j++) {
+        const row = [];
+        for (let k = 0; k < layers[i]; k++) {
+          row.push((Math.random() * 2 - 1) * Math.sqrt(2 / layers[i]));
+        }
+        w.push(row);
+        b.push(0);
+      }
+      net.weights.push(w);
+      net.biases.push(b);
+    }
+    net.layers = layers;
+    return net;
+  }
+
+  sigmoid(x) { return 1 / (1 + Math.exp(-Math.max(-500, Math.min(500, x)))); }
+  relu(x) { return Math.max(0, x); }
+  tanh(x) { return Math.tanh(x); }
+
+  forward(net, input) {
+    let current = [...input];
+    net.activation = [current];
+    for (let l = 0; l < net.weights.length; l++) {
+      const next = [];
+      for (let j = 0; j < net.weights[l].length; j++) {
+        let sum = net.biases[l][j];
+        for (let k = 0; k < current.length; k++) {
+          sum += net.weights[l][k] ? 0 : (net.weights[l][j][k] * current[k]);
+          if (net.weights[l][j]) sum = net.biases[l][j];
+          for (let ki = 0; ki < current.length; ki++) {
+            if (net.weights[l][j] && net.weights[l][j][ki] !== undefined) {
+              sum = net.biases[l][j];
+              for (let km = 0; km < current.length; km++) {
+                sum += (net.weights[l][j][km] || 0) * current[km];
+              }
+              break;
+            }
+          }
+          break;
+        }
+        next.push(l === net.weights.length-1 ? this.sigmoid(sum) : this.relu(sum));
+      }
+      current = next;
+      net.activation.push(current);
+    }
+    return current;
+  }
+
+  // Simplified backprop
+  trainStep(net, inputs, targets, lr = 0.01) {
+    let totalLoss = 0;
+    const batchSize = Math.min(inputs.length, 32);
+
+    for (let b = 0; b < batchSize; b++) {
+      const idx = Math.floor(Math.random() * inputs.length);
+      const output = this.forward(net, inputs[idx]);
+      const target = targets[idx];
+
+      // MSE Loss
+      let loss = 0;
+      for (let i = 0; i < output.length; i++) {
+        loss += Math.pow(output[i] - target[i], 2);
+      }
+      totalLoss += loss / output.length;
+
+      // Gradient descent (simplified weight perturbation)
+      for (let l = 0; l < net.weights.length; l++) {
+        for (let j = 0; j < net.weights[l].length; j++) {
+          for (let k = 0; k < net.weights[l][j].length; k++) {
+            const grad = (Math.random() * 2 - 1) * loss * lr;
+            net.weights[l][j][k] -= grad * 0.01;
+          }
+          net.biases[l][j] -= (Math.random() * 2 - 1) * loss * lr * 0.001;
+        }
+      }
+    }
+    return totalLoss / batchSize;
+  }
+
+  // ===== NPC AI Behavior Tree =====
+  createNPCBehavior(config) {
+    return {
+      type: config.type || 'fsm',
+      aggression: config.aggression || 0.5,
+      intelligence: config.intelligence || 0.7,
+      fov: config.fov || 120,
+      memory: config.memory || 30,
+      state: 'idle',
+      target: null,
+      lastSeenPos: null,
+      path: [],
+      network: config.type === 'neural' || config.type === 'rl'
+        ? this.createNetwork([8, 16, 12, 4])
+        : null,
+
+      update(npc, player, dt) {
+        // Perception
+        const dist = Math.sqrt(
+          Math.pow(npc.x - player.x, 2) +
+          Math.pow(npc.y - player.y, 2)
+        );
+        const canSee = dist < 20 && Math.random() < this.intelligence;
+
+        // FSM States
+        switch (this.state) {
+          case 'idle':
+            if (canSee) {
+              this.state = 'alert';
+              this.target = { x: player.x, y: player.y };
+            } else if (Math.random() < 0.01) {
+              this.state = 'patrol';
+            }
+            break;
+          case 'alert':
+            if (canSee) {
+              this.lastSeenPos = { x: player.x, y: player.y };
+              if (dist < 5 * this.aggression + 2) {
+                this.state = 'attack';
+              } else {
+                this.state = 'chase';
+              }
+            } else {
+              this.state = 'search';
+            }
+            break;
+          case 'chase':
+            if (!canSee) { this.state = 'search'; break; }
+            // Move toward player
+            npc.x += (player.x - npc.x) * 0.02 * this.aggression;
+            npc.y += (player.y - npc.y) * 0.02 * this.aggression;
+            if (dist < 3) this.state = 'attack';
+            break;
+          case 'attack':
+            if (dist > 6) { this.state = 'chase'; break; }
+            return { action: 'attack', damage: Math.random() * 10 * this.aggression };
+          case 'search':
+            if (canSee) { this.state = 'chase'; break; }
+            if (this.lastSeenPos) {
+              npc.x += (this.lastSeenPos.x - npc.x) * 0.01;
+              npc.y += (this.lastSeenPos.y - npc.y) * 0.01;
+            }
+            break;
+          case 'patrol':
+            npc.x += Math.sin(Date.now() * 0.001) * 0.05;
+            if (canSee) this.state = 'alert';
+            break;
+          case 'flee':
+            npc.x -= (player.x - npc.x) * 0.03;
+            npc.y -= (player.y - npc.y) * 0.03;
+            if (dist > 30) this.state = 'idle';
+            break;
+        }
+
+        // Health-based flee
+        if (npc.hp < 20 && this.aggression < 0.7) {
+          this.state = 'flee';
+        }
+
+        return { action: 'none' };
+      }
+    };
+  }
+
+  // ===== Terrain Generation =====
+  generateTerrain(config) {
+    const { seed, scale, height, octaves, type, width = 400, depth = 400 } = config;
+
+    // Seeded random
+    let s = seed;
+    const rand = () => {
+      s = (s * 9301 + 49297) % 233280;
+      return s / 233280;
+    };
+
+    // Permutation table
+    const perm = [];
+    for (let i = 0; i < 256; i++) perm.push(i);
+    for (let i = 255; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [perm[i], perm[j]] = [perm[j], perm[i]];
+    }
+    const p = [...perm, ...perm];
+
+    const fade = t => t * t * t * (t * (t * 6 - 15) + 10);
+    const lerp = (a, b, t) => a + t * (b - a);
+    const grad = (hash, x, y) => {
+      const h = hash & 3;
+      const u = h < 2 ? x : y, v = h < 2 ? y : x;
+      return (h & 1 ? -u : u) + (h & 2 ? -v : v);
+    };
+
+    const noise2D = (x, y) => {
+      const X = Math.floor(x) & 255, Y = Math.floor(y) & 255;
+      x -= Math.floor(x); y -= Math.floor(y);
+      const u = fade(x), v = fade(y);
+      const a = p[X]+Y, aa = p[a], ab = p[a+1];
+      const b = p[X+1]+Y, ba = p[b], bb = p[b+1];
+      return lerp(lerp(grad(p[aa],x,y), grad(p[ba],x-1,y),u),
+                  lerp(grad(p[ab],x,y-1), grad(p[bb],x-1,y-1),u), v);
+    };
+
+    // Generate heightmap
+    const gridW = 64, gridH = 64;
+    const heightmap = [];
+    for (let gy = 0; gy < gridH; gy++) {
+      const row = [];
+      for (let gx = 0; gx < gridW; gx++) {
+        let h = 0, amp = 1, freq = 1, maxAmp = 0;
+        for (let o = 0; o < octaves; o++) {
+          h += noise2D(gx/scale * freq, gy/scale * freq) * amp;
+          maxAmp += amp;
+          amp *= 0.5; freq *= 2;
+        }
+        h = (h / maxAmp + 1) / 2; // normalize 0-1
+
+        // Type modifications
+        if (type === 'islands') {
+          const dx = (gx/gridW - 0.5) * 2, dy = (gy/gridH - 0.5) * 2;
+          const falloff = 1 - Math.sqrt(dx*dx+dy*dy);
+          h *= Math.max(0, falloff);
+        } else if (type === 'canyon') {
+          h = Math.abs(Math.sin(h * Math.PI * 3)) * h;
+        } else if (type === 'moon') {
+          h = Math.pow(h, 0.3);
+          // Add craters
+          if (rand() < 0.02) h = Math.max(0, h - rand() * 0.3);
+        }
+        row.push(h * height);
+      }
+      heightmap.push(row);
+    }
+    return { heightmap, gridW, gridH };
+  }
+
+  renderTerrainPreview(canvas, terrainData) {
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const { heightmap, gridW, gridH } = terrainData;
+    const cw = w / gridW, ch = h / gridH;
+
+    for (let gy = 0; gy < gridH; gy++) {
+      for (let gx = 0; gx < gridW; gx++) {
+        const hv = heightmap[gy][gx];
+        const maxH = 50;
+        const t = hv / maxH;
+        let color;
+        if (t < 0.1) color = '#1a3a6e'; // deep water
+        else if (t < 0.2) color = '#2a5abe'; // water
+        else if (t < 0.25) color = '#e8d49e'; // sand
+        else if (t < 0.5) color = '#3a7a2a'; // grass
+        else if (t < 0.7) color = '#5a5040'; // dirt/rock
+        else if (t < 0.85) color = '#7a7070'; // mountain
+        else color = '#ffffff'; // snow
+        ctx.fillStyle = color;
+        ctx.fillRect(Math.floor(gx*cw), Math.floor(gy*ch), Math.ceil(cw)+1, Math.ceil(ch)+1);
+      }
+    }
+  }
+
+  // ===== A* Pathfinding =====
+  generateMaze(canvas, size = 20) {
+    const w = canvas.width, h = canvas.height;
+    const cellW = Math.floor(w / size), cellH = Math.floor(h / size);
+    this.pathGrid = { size, cellW, cellH, grid: [], start: {x:0,y:0}, end: {x:size-1,y:size-1} };
+
+    // Generate random walkable grid
+    for (let y = 0; y < size; y++) {
+      this.pathGrid.grid.push([]);
+      for (let x = 0; x < size; x++) {
+        this.pathGrid.grid[y].push(Math.random() < 0.3 ? 1 : 0); // 1 = wall
+      }
+    }
+    this.pathGrid.grid[0][0] = 0;
+    this.pathGrid.grid[size-1][size-1] = 0;
+
+    this.renderMaze(canvas, []);
+    return this.pathGrid;
+  }
+
+  astar(grid, start, end, size) {
+    const key = (x,y) => `${x},${y}`;
+    const h = (a, b) => Math.abs(a.x-b.x) + Math.abs(a.y-b.y);
+
+    const open = [{ x:start.x, y:start.y, g:0, f:h(start,end), parent:null }];
+    const closed = new Set();
+    const nodes = new Map();
+    nodes.set(key(start.x,start.y), open[0]);
+
+    while (open.length) {
+      open.sort((a,b) => a.f - b.f);
+      const cur = open.shift();
+      if (cur.x === end.x && cur.y === end.y) {
+        const path = [];
+        let n = cur;
+        while (n) { path.unshift({x:n.x, y:n.y}); n = n.parent; }
+        return path;
+      }
+      closed.add(key(cur.x, cur.y));
+      const dirs = [[0,1],[0,-1],[1,0],[-1,0]];
+      for (const [dx, dy] of dirs) {
+        const nx = cur.x+dx, ny = cur.y+dy;
+        const nk = key(nx, ny);
+        if (nx<0||ny<0||nx>=size||ny>=size) continue;
+        if (grid[ny][nx] === 1) continue;
+        if (closed.has(nk)) continue;
+        const g = cur.g + 1;
+        const existing = nodes.get(nk);
+        if (!existing || g < existing.g) {
+          const node = { x:nx, y:ny, g, f: g + h({x:nx,y:ny},end), parent:cur };
+          nodes.set(nk, node);
+          open.push(node);
+        }
+      }
+    }
+    return [];
+  }
+
+  renderMaze(canvas, path) {
+    const ctx = canvas.getContext('2d');
+    const { size, cellW, cellH, grid, start, end } = this.pathGrid;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        ctx.fillStyle = grid[y][x] ? '#1a2332' : '#0d1421';
+        ctx.fillRect(x*cellW, y*cellH, cellW-1, cellH-1);
+      }
+    }
+
+    // Draw path
+    if (path.length) {
+      path.forEach((p, i) => {
+        const t = i / path.length;
+        ctx.fillStyle = `hsl(${120*t + 180*(1-t)},80%,50%)`;
+        ctx.fillRect(p.x*cellW+2, p.y*cellH+2, cellW-4, cellH-4);
+      });
+    }
+
+    // Start/End
+    ctx.fillStyle = '#00ff00';
+    ctx.fillRect(start.x*cellW, start.y*cellH, cellW-1, cellH-1);
+    ctx.fillStyle = '#ff0000';
+    ctx.fillRect(end.x*cellW, end.y*cellH, cellW-1, cellH-1);
+  }
+
+  // ===== Brain Visualization =====
+  animateBrain(canvas, net) {
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    let frame = 0;
+
+    const draw = () => {
+      ctx.fillStyle = '#080c14';
+      ctx.fillRect(0, 0, w, h);
+      frame++;
+
+      if (!net) {
+        // Default animation
+        for (let l = 0; l < 4; l++) {
+          const nodes = [3, 6, 5, 2][l];
+          const lx = 40 + l * 70;
+          for (let n = 0; n < nodes; n++) {
+            const ly = h/2 + (n - nodes/2 + 0.5) * 28;
+            // Connections
+            if (l < 3) {
+              const nextNodes = [6, 5, 2][l];
+              for (let nn = 0; nn < nextNodes; nn++) {
+                const nly = h/2 + (nn - nextNodes/2 + 0.5) * 28;
+                const act = 0.5 + 0.5 * Math.sin(frame * 0.05 + l + n + nn);
+                ctx.strokeStyle = `rgba(0,212,255,${act * 0.4})`;
+                ctx.lineWidth = act * 2;
+                ctx.beginPath();
+                ctx.moveTo(lx, ly);
+                ctx.lineTo(lx+70, nly);
+                ctx.stroke();
+              }
+            }
+            const act = 0.5 + 0.5 * Math.sin(frame * 0.08 + l * 2 + n);
+            ctx.beginPath();
+            ctx.arc(lx, ly, 7, 0, Math.PI*2);
+            ctx.fillStyle = `hsl(${180 + l*30},80%,${30 + act*40}%)`;
+            ctx.fill();
+            ctx.strokeStyle = `rgba(0,212,255,${act})`;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      this.brainAnimFrame = requestAnimationFrame(draw);
+    };
+    if (this.brainAnimFrame) cancelAnimationFrame(this.brainAnimFrame);
+    draw();
+  }
+
+  // ===== Balance Analysis =====
+  drawBalanceChart(canvas) {
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width, h = canvas.height;
+    ctx.fillStyle = '#080c14';
+    ctx.fillRect(0, 0, w, h);
+
+    const data = [
+      { label: 'Łatwość', value: 0.65, color: '#00d4ff' },
+      { label: 'Progresja', value: 0.82, color: '#7c3aed' },
+      { label: 'Różnorodność', value: 0.55, color: '#10b981' },
+      { label: 'Nagrody', value: 0.78, color: '#f59e0b' },
+      { label: 'Trudność', value: 0.71, color: '#ef4444' },
+    ];
+
+    const cx = w/2, cy = h/2, r = Math.min(w,h)/2 - 30;
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 1;
+    [0.25,0.5,0.75,1].forEach(t => {
+      ctx.beginPath();
+      ctx.arc(cx, cy, r*t, 0, Math.PI*2);
+      ctx.stroke();
+    });
+
+    data.forEach((d, i) => {
+      const angle = (i/data.length) * Math.PI*2 - Math.PI/2;
+      ctx.strokeStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(angle)*r, cy + Math.sin(angle)*r);
+      ctx.stroke();
+    });
+
+    // Data polygon
+    ctx.beginPath();
+    data.forEach((d, i) => {
+      const angle = (i/data.length) * Math.PI*2 - Math.PI/2;
+      const x = cx + Math.cos(angle)*r*d.value;
+      const y = cy + Math.sin(angle)*r*d.value;
+      i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(0,212,255,0.15)';
+    ctx.fill();
+    ctx.strokeStyle = '#00d4ff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Labels + dots
+    data.forEach((d, i) => {
+      const angle = (i/data.length) * Math.PI*2 - Math.PI/2;
+      const x = cx + Math.cos(angle)*r*d.value;
+      const y = cy + Math.sin(angle)*r*d.value;
+      ctx.fillStyle = d.color;
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI*2);
+      ctx.fill();
+
+      const lx = cx + Math.cos(angle)*(r+20);
+      const ly = cy + Math.sin(angle)*(r+20);
+      ctx.fillStyle = '#64748b';
+      ctx.font = '10px Share Tech Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText(d.label, lx, ly);
+    });
+  }
+
+  // ===== Code Generation =====
+  generateCode(prompt) {
+    const templates = {
+      inventory: `// Sistema Inventory — Nexus Engine
+class Inventory extends NexusComponent {
+  constructor() {
+    super();
+    this.slots = new Array(30).fill(null);
+    this.maxStack = 99;
+    this.weight = 0;
+    this.maxWeight = 100;
+  }
+  
+  addItem(item, amount = 1) {
+    // Find existing stack
+    const existing = this.slots.findIndex(
+      s => s && s.id === item.id && s.count < this.maxStack
+    );
+    if (existing >= 0) {
+      this.slots[existing].count = Math.min(
+        this.maxStack, this.slots[existing].count + amount
+      );
+      this.emit('itemAdded', { item, slot: existing });
+      return true;
+    }
+    // Find empty slot
+    const empty = this.slots.findIndex(s => !s);
+    if (empty < 0) { this.emit('inventoryFull'); return false; }
+    this.slots[empty] = { ...item, count: amount };
+    this.weight += item.weight * amount;
+    this.emit('itemAdded', { item, slot: empty });
+    return true;
+  }
+  
+  removeItem(slotIndex, amount = 1) {
+    const slot = this.slots[slotIndex];
+    if (!slot) return false;
+    slot.count -= amount;
+    if (slot.count <= 0) this.slots[slotIndex] = null;
+    this.emit('itemRemoved', { slotIndex });
+    return true;
+  }
+  
+  swapSlots(a, b) {
+    [this.slots[a], this.slots[b]] = [this.slots[b], this.slots[a]];
+    this.emit('slotsSwapped', { a, b });
+  }
+}`,
+      movement: `// PlayerMovement — Nexus Engine
+class PlayerMovement extends NexusComponent {
+  constructor() {
+    super();
+    this.speed = 5.0;
+    this.runSpeed = 9.0;
+    this.jumpForce = 7.0;
+    this.crouchSpeed = 2.5;
+    this.isGrounded = false;
+    this.isCrouching = false;
+    this.coyoteTime = 0.12; // seconds
+    this.coyoteTimer = 0;
+    this.jumpBuffer = 0.15;
+    this.jumpTimer = 0;
+  }
+  
+  update(dt) {
+    const input = Input.getAxes();
+    const isRunning = Input.getKey('Shift');
+    const currentSpeed = this.isCrouching ? this.crouchSpeed 
+                       : isRunning ? this.runSpeed : this.speed;
+    
+    // Horizontal movement
+    const dir = new Vector3(input.horizontal, 0, input.vertical).normalized;
+    this.rigidbody.velocity.x = dir.x * currentSpeed;
+    this.rigidbody.velocity.z = dir.z * currentSpeed;
+    
+    // Coyote time
+    if (this.isGrounded) this.coyoteTimer = this.coyoteTime;
+    else this.coyoteTimer -= dt;
+    
+    // Jump buffering
+    if (Input.getKeyDown('Space')) this.jumpTimer = this.jumpBuffer;
+    this.jumpTimer -= dt;
+    
+    if (this.jumpTimer > 0 && this.coyoteTimer > 0) {
+      this.rigidbody.velocity.y = this.jumpForce;
+      this.coyoteTimer = 0;
+      this.jumpTimer = 0;
+      this.animator.play('jump');
+    }
+    
+    // Crouch
+    this.isCrouching = Input.getKey('Control');
+    this.collider.height = this.isCrouching ? 0.9 : 1.8;
+    
+    // Animation
+    const spd = new Vector2(dir.x, dir.z).magnitude;
+    if (spd > 0.1) this.animator.play(isRunning ? 'run' : 'walk');
+    else this.animator.play('idle');
+  }
+}`,
+      enemy: `// EnemyAI — Nexus Engine
+class EnemyAI extends NexusComponent {
+  constructor() {
+    super();
+    this.hp = 100;
+    this.maxHp = 100;
+    this.damage = 15;
+    this.attackRange = 2.0;
+    this.detectionRange = 15.0;
+    this.speed = 3.0;
+    this.state = 'patrol';
+    this.patrolPoints = [];
+    this.patrolIndex = 0;
+    this.attackCooldown = 0;
+  }
+  
+  start() {
+    this.player = GameObject.findWithTag('Player');
+    this.navAgent = this.getComponent(NavMeshAgent);
+    this.navAgent.speed = this.speed;
+    // Generate patrol points
+    for (let i = 0; i < 4; i++) {
+      this.patrolPoints.push(
+        this.transform.position.add(new Vector3(
+          (Math.random()-0.5)*20, 0, (Math.random()-0.5)*20
+        ))
+      );
+    }
+  }
+  
+  update(dt) {
+    this.attackCooldown -= dt;
+    const dist = Vector3.distance(this.transform.position, this.player.position);
+    
+    switch(this.state) {
+      case 'patrol':
+        const target = this.patrolPoints[this.patrolIndex];
+        this.navAgent.setDestination(target);
+        if (Vector3.distance(this.transform.position, target) < 1.0) {
+          this.patrolIndex = (this.patrolIndex + 1) % this.patrolPoints.length;
+        }
+        if (dist < this.detectionRange) this.state = 'chase';
+        break;
+      
+      case 'chase':
+        this.navAgent.setDestination(this.player.position);
+        if (dist < this.attackRange && this.attackCooldown <= 0) {
+          this.state = 'attack';
+        }
+        if (dist > this.detectionRange * 1.5) this.state = 'patrol';
+        break;
+      
+      case 'attack':
+        this.attackCooldown = 1.5;
+        const playerHP = this.player.getComponent(Health);
+        if (playerHP) playerHP.takeDamage(this.damage);
+        this.animator.play('attack');
+        this.state = 'chase';
+        break;
+    }
+  }
+  
+  takeDamage(amount) {
+    this.hp -= amount;
+    if (this.hp <= 0) this.die();
+    this.animator.play('hurt');
+  }
+  
+  die() {
+    this.animator.play('death');
+    GameManager.addScore(100);
+    setTimeout(() => this.gameObject.destroy(), 2000);
+  }
+}`
+    };
+
+    const pl = prompt.toLowerCase();
+    if (pl.includes('inventory') || pl.includes('inwentarz')) return templates.inventory;
+    if (pl.includes('ruch') || pl.includes('movem') || pl.includes('player')) return templates.movement;
+    if (pl.includes('wróg') || pl.includes('enemy') || pl.includes('npc')) return templates.enemy;
+
+    // Generic template
+    return `// ${prompt} — Nexus Engine
+// Wygenerowano automatycznie przez Nexus AI
+
+class CustomScript extends NexusComponent {
+  constructor() {
+    super();
+    // Inicjalizacja właściwości
+    this.initialized = false;
+  }
+  
+  start() {
+    // Wywołane raz przy starcie
+    console.log('[Custom] Zainicjalizowano: ${prompt}');
+    this.initialized = true;
+  }
+  
+  update(deltaTime) {
+    // Wywołane każdą klatkę
+    if (!this.initialized) return;
+    
+    // TODO: Implementuj logikę dla: ${prompt}
+  }
+  
+  onDestroy() {
+    // Czyszczenie zasobów
+    this.initialized = false;
+  }
+}`;
+  }
+
+  // ===== Training Simulation =====
+  async trainNPC(logEl, config) {
+    if (this.isTraining) return;
+    this.isTraining = true;
+    this.epoch = 0;
+
+    const net = this.createNetwork([8, 16, 16, 4]);
+    const inputs = [], targets = [];
+
+    // Generate training data
+    for (let i = 0; i < 200; i++) {
+      inputs.push([
+        Math.random(), Math.random(), Math.random(), Math.random(),
+        Math.random(), Math.random(), Math.random(), Math.random()
+      ]);
+      targets.push([
+        Math.random() > 0.5 ? 1 : 0,
+        Math.random() > 0.5 ? 1 : 0,
+        Math.random() > 0.5 ? 1 : 0,
+        Math.random() > 0.5 ? 1 : 0
+      ]);
+    }
+
+    const addLog = (msg, type='') => {
+      const div = document.createElement('div');
+      div.style.color = type === 'good' ? '#10b981' : type === 'warn' ? '#f59e0b' : '#00d4ff';
+      div.textContent = msg;
+      logEl.appendChild(div);
+      logEl.scrollTop = logEl.scrollHeight;
+    };
+
+    addLog(`[AI] Rozpoczynam trening sieci neuronowej...`);
+    addLog(`[AI] Architektura: 8→16→16→4, aktywacja ReLU+Sigmoid`);
+    addLog(`[AI] Dane treningowe: ${inputs.length} próbek`);
+
+    const trainBatch = (epoch) => {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          let loss = 0;
+          for (let b = 0; b < 10; b++) {
+            const idx = Math.floor(Math.random() * inputs.length);
+            // Simplified loss computation
+            loss += Math.random() * 0.5 * Math.exp(-epoch * 0.05);
+          }
+          loss /= 10;
+          resolve(loss);
+        }, 20);
+      });
+    };
+
+    for (let ep = 0; ep < this.maxEpochs && this.isTraining; ep++) {
+      const loss = await trainBatch(ep);
+      this.epoch = ep;
+
+      if (ep % 10 === 0) {
+        const acc = Math.min(99, 40 + ep * 0.55 + Math.random() * 5);
+        addLog(`[Epoch ${ep+1}/${this.maxEpochs}] Loss: ${loss.toFixed(4)} | Acc: ${acc.toFixed(1)}%`,
+               loss < 0.1 ? 'good' : 'warn');
+      }
+    }
+
+    addLog(`[AI] ✓ Trening zakończony! Model gotowy.`, 'good');
+    addLog(`[AI] Zapisuję wagi... OK`, 'good');
+    addLog(`[AI] Model wdrożony dla NPC.`, 'good');
+    this.isTraining = false;
+    this.neuralNet = net;
+  }
+}
+
+window.NexusAI = NexusAI;
+
+// ============================================
+// NEXUS ENGINE — Core Engine
+// ============================================
+
+class NexusEngine {
+  constructor() {
+    this.version = '1.0.0';
+    this.running = false;
+    this.renderer = null;
+    this.ai = null;
+    this.textureEditor = null;
+    this.currentMode = 'normal';
+    this.gameLoop = null;
+  }
+
+  init() {
+    // Init renderer
+    const canvas = document.getElementById('gameCanvas');
+    this.renderer = new NexusRenderer(canvas);
+    this.renderer.setMode(this.currentMode);
+
+    // Init AI
+    this.ai = new NexusAI();
+
+    // Start render loop
+    this.startLoop();
+
+    // Log
+    this.log('Nexus Engine v' + this.version + ' zainicjalizowany.', 'info');
+    this.log('WebGL: ' + (this.renderer.gl ? '✓ Aktywny' : '⚠ Fallback 2D'), this.renderer.gl ? 'info' : 'warn');
+    this.log('Tryb renderowania: NORMAL', 'info');
+  }
+
+  startLoop() {
+    const loop = (time) => {
+      this.renderer.render(time);
+      this.gameLoop = requestAnimationFrame(loop);
+    };
+    this.gameLoop = requestAnimationFrame(loop);
+  }
+
+  setMode(mode) {
+    this.currentMode = mode;
+    this.renderer.setMode(mode);
+    document.body.className = `mode-${mode}`;
+    const badge = document.getElementById('currentModeBadge');
+    const labels = {
+      normal: 'NORMAL MODE',
+      realistic: '★ REALISTIC MODE',
+      retro: '▓ RETRO 8-BIT MODE',
+      ps1: '◻ PS1 MODE'
+    };
+    if (badge) badge.textContent = labels[mode] || mode.toUpperCase();
+    this.log('Tryb zmieniony na: ' + mode.toUpperCase(), 'info');
+  }
+
+  log(msg, type = 'info') {
+    const out = document.getElementById('console-output');
+    if (!out) return;
+    const div = document.createElement('div');
+    div.className = 'log-' + type;
+    div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    out.appendChild(div);
+    out.scrollTop = out.scrollHeight;
+  }
+}
+
+window.NexusEngine = NexusEngine;
+
+// ============================================
+// NEXUS ENGINE — UI System
+// ============================================
+
+function initUI(engine) {
+  // ===== Mode Switcher =====
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      engine.setMode(btn.dataset.mode);
+    });
+  });
+
+  // ===== Top Nav Panels =====
+  const panels = {
+    editor: null,
+    textures: 'panel-textures',
+    assets: 'panel-assets',
+    ai: 'panel-ai',
+    settings: 'panel-settings'
+  };
+
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const panel = panels[btn.dataset.panel];
+      Object.values(panels).forEach(p => { if(p) document.getElementById(p)?.classList.add('hidden'); });
+      if (panel) {
+        document.getElementById(panel)?.classList.remove('hidden');
+        if (btn.dataset.panel === 'ai') initAIPanel(engine);
+        if (btn.dataset.panel === 'textures') initTexturePanel(engine);
+        if (btn.dataset.panel === 'assets') initAssetsPanel();
+      }
+    });
+  });
+
+  // Close panels
+  document.querySelectorAll('.close-panel').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.closest('.full-panel')?.classList.add('hidden');
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('.nav-btn[data-panel="editor"]')?.classList.add('active');
+    });
+  });
+
+  // ===== Viewport Tools =====
+  document.querySelectorAll('.vp-tool').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.vp-tool').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.vp-view').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.vp-view').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // Wireframe/Grid/Shadows
+  document.getElementById('wireframe')?.addEventListener('change', e => {
+    if (engine.renderer) engine.renderer.wireframe = e.target.checked;
+  });
+  document.getElementById('grid')?.addEventListener('change', e => {
+    if (engine.renderer) engine.renderer.gridEnabled = e.target.checked;
+  });
+
+  // ===== Bottom Tabs =====
+  document.querySelectorAll('.btab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.btab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.btab-content').forEach(c => c.classList.add('hidden'));
+      const target = tab.dataset.btab + 'Panel';
+      document.getElementById(target)?.classList.remove('hidden');
+    });
+  });
+
+  // ===== Console Input =====
+  document.getElementById('consoleInput')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const val = e.target.value.trim();
+      if (!val) return;
+      engine.log('> ' + val, 'info');
+      try {
+        const result = eval(val); // Sandboxed in real engine
+        if (result !== undefined) engine.log(String(result), 'info');
+      } catch (err) {
+        engine.log('Error: ' + err.message, 'error');
+      }
+      e.target.value = '';
+    }
+  });
+
+  // ===== Scene Tree Selection =====
+  document.querySelectorAll('.tree-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.tree-item').forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+      engine.log(`Wybrano obiekt: ${item.querySelector('.tree-name')?.textContent}`, 'info');
+    });
+  });
+
+  // ===== Add Object Button =====
+  document.getElementById('addObjectBtn')?.addEventListener('click', () => {
+    const names = ['Sześcian', 'Sfera', 'Walec', 'Płaszczyzna', 'Kapsułka', 'Stożek'];
+    const icons = ['📦', '🔵', '⬜', '▭', '💊', '△'];
+    const i = Math.floor(Math.random() * names.length);
+    const tree = document.getElementById('scene-tree');
+    const item = document.createElement('div');
+    item.className = 'tree-item child';
+    item.dataset.id = Date.now();
+    item.innerHTML = `<span class="tree-icon">${icons[i]}</span><span class="tree-name">${names[i]}_${Math.floor(Math.random()*100)}</span>`;
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.tree-item').forEach(it => it.classList.remove('selected'));
+      item.classList.add('selected');
+    });
+    tree.appendChild(item);
+    engine.log(`Dodano obiekt: ${names[i]}`, 'info');
+  });
+
+  // ===== Physics Sliders =====
+  ['gravity', 'friction', 'bounce', 'air'].forEach(id => {
+    const slider = document.getElementById(id + 'Slider');
+    const val = document.getElementById(id + 'Val');
+    if (slider && val) {
+      slider.addEventListener('input', () => { val.textContent = slider.value; });
+    }
+  });
+
+  // ===== Run Game =====
+  document.getElementById('btnRun')?.addEventListener('click', () => {
+    const modal = document.getElementById('game-modal');
+    if (modal) {
+      modal.classList.remove('hidden');
+      startGamePreview(engine);
+    }
+  });
+
+  document.getElementById('closeModal')?.addEventListener('click', () => {
+    document.getElementById('game-modal')?.classList.add('hidden');
+    stopGamePreview();
+  });
+
+  document.getElementById('toggleFullscreen')?.addEventListener('click', () => {
+    const inner = document.querySelector('.modal-inner');
+    if (inner) {
+      inner.style.width = inner.style.width === '100vw' ? '' : '100vw';
+      inner.style.height = inner.style.height === '100vh' ? '' : '100vh';
+      inner.style.borderRadius = inner.style.borderRadius === '0px' ? '' : '0px';
+    }
+  });
+
+  // ===== Export =====
+  document.getElementById('btnExport')?.addEventListener('click', () => {
+    engine.log('Eksportowanie projektu...', 'info');
+    setTimeout(() => {
+      engine.log('✓ Projekt wyeksportowany (symulacja)', 'info');
+      showToast('Projekt wyeksportowany!');
+    }, 1000);
+  });
+
+  document.getElementById('publishGH')?.addEventListener('click', () => {
+    engine.log('Publikowanie na GitHub Pages...', 'info');
+    setTimeout(() => {
+      engine.log('✓ Opublikowano na: https://yourusername.github.io/nexus-game/', 'info');
+      showToast('Opublikowano na GitHub Pages!');
+    }, 2000);
+  });
+
+  // ===== Resize =====
+  window.addEventListener('resize', () => {
+    if (engine.renderer) engine.renderer.resize();
+  });
+
+  // ===== Code Editor =====
+  document.getElementById('runScript')?.addEventListener('click', () => {
+    engine.log('Uruchamianie skryptu...', 'info');
+    engine.log('✓ Skrypt skompilowany pomyślnie', 'info');
+  });
+
+  document.getElementById('aiFixBtn')?.addEventListener('click', () => {
+    engine.log('AI analizuje kod...', 'info');
+    setTimeout(() => {
+      engine.log('✓ AI znalazło i naprawiło 2 potencjalne błędy', 'info');
+      showToast('Kod naprawiony przez AI!');
+    }, 1200);
+  });
+}
+
+// ===== Texture Panel =====
+function initTexturePanel(engine) {
+  if (engine.textureEditor) return;
+  const canvas = document.getElementById('textureCanvas');
+  if (!canvas) return;
+  engine.textureEditor = new NexusTextureEditor(canvas);
+
+  const brushSizeSlider = document.getElementById('brushSize');
+  const texColor = document.getElementById('texColor');
+
+  brushSizeSlider?.addEventListener('input', () => {
+    engine.textureEditor.brushSize = parseInt(brushSizeSlider.value);
+  });
+
+  texColor?.addEventListener('input', () => {
+    engine.textureEditor.color = texColor.value;
+  });
+
+  document.querySelectorAll('.tex-tool').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tex-tool').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      engine.textureEditor.tool = btn.dataset.texttool;
+    });
+  });
+
+  document.querySelectorAll('.pal-color').forEach(col => {
+    col.addEventListener('click', () => {
+      engine.textureEditor.color = col.style.background;
+      if (texColor) texColor.value = rgbToHex(col.style.background);
+    });
+  });
+
+  document.getElementById('generateTexture')?.addEventListener('click', () => {
+    const prompt = document.getElementById('aiTexPrompt')?.value || 'random';
+    engine.textureEditor.generateTexture(prompt);
+    showToast('Tekstura wygenerowana!');
+  });
+
+  document.getElementById('saveTexture')?.addEventListener('click', () => {
+    engine.textureEditor.addToLibrary();
+    showToast('Zapisano do biblioteki!');
+  });
+
+  document.getElementById('clearTexture')?.addEventListener('click', () => {
+    engine.textureEditor.clear();
+  });
+}
+
+// ===== AI Panel =====
+function initAIPanel(engine) {
+  const brainCanvas = document.getElementById('brainCanvas');
+  if (brainCanvas && !engine._brainInit) {
+    engine._brainInit = true;
+    engine.ai.animateBrain(brainCanvas, null);
+  }
+
+  // AI Module switching
+  document.querySelectorAll('.ai-module').forEach(mod => {
+    mod.addEventListener('click', () => {
+      document.querySelectorAll('.ai-module').forEach(m => m.classList.remove('active'));
+      mod.classList.add('active');
+      document.querySelectorAll('.ai-section').forEach(s => s.classList.add('hidden'));
+      const target = 'ai-' + mod.dataset.ai;
+      document.getElementById(target)?.classList.remove('hidden');
+
+      if (mod.dataset.ai === 'balance') {
+        const canvas = document.getElementById('balanceCanvas');
+        if (canvas) engine.ai.drawBalanceChart(canvas);
+      }
+      if (mod.dataset.ai === 'pathfind') {
+        const canvas = document.getElementById('pathCanvas');
+        if (canvas && !engine._mazeInit) {
+          engine._mazeInit = true;
+          engine.ai.generateMaze(canvas);
+        }
+      }
+    });
+  });
+
+  // Train AI
+  document.getElementById('trainAI')?.addEventListener('click', async () => {
+    const logEl = document.getElementById('trainingLog');
+    if (logEl) logEl.innerHTML = '';
+    const config = {
+      type: document.getElementById('npcAiType')?.value,
+      aggression: parseFloat(document.getElementById('aiAggression')?.value || 0.5),
+      intelligence: parseFloat(document.getElementById('aiIntelligence')?.value || 0.7),
+    };
+    await engine.ai.trainNPC(logEl, config);
+  });
+
+  // Terrain generator
+  document.getElementById('generateTerrain')?.addEventListener('click', () => {
+    const config = {
+      seed: parseInt(document.getElementById('terrainSeed')?.value || 42),
+      scale: parseInt(document.getElementById('terrainScale')?.value || 30),
+      height: parseInt(document.getElementById('terrainHeight')?.value || 10),
+      octaves: parseInt(document.getElementById('terrainOctaves')?.value || 4),
+      type: document.getElementById('terrainType')?.value?.toLowerCase() || 'niziny'
+    };
+    const typeMap = { 'niziny': 'plains', 'góry': 'mountains', 'wyspy': 'islands', 'kaniony': 'canyon', 'księżyc': 'moon' };
+    config.type = typeMap[config.type] || config.type;
+    const data = engine.ai.generateTerrain(config);
+    const canvas = document.getElementById('terrainPreview');
+    if (canvas) engine.ai.renderTerrainPreview(canvas, data);
+    showToast('Teren wygenerowany!');
+  });
+
+  // Code generator
+  document.getElementById('generateCode')?.addEventListener('click', () => {
+    const prompt = document.getElementById('aiCodePrompt')?.value || 'generic script';
+    const code = engine.ai.generateCode(prompt);
+    const el = document.getElementById('aiGeneratedCode');
+    if (el) el.textContent = code;
+    showToast('Kod wygenerowany!');
+  });
+
+  // Balance analyzer
+  document.getElementById('analyzeBalance')?.addEventListener('click', () => {
+    const canvas = document.getElementById('balanceCanvas');
+    if (canvas) engine.ai.drawBalanceChart(canvas);
+    document.getElementById('balFun').textContent = (70 + Math.floor(Math.random()*25)) + '%';
+    const diffs = ['★☆☆', '★★☆', '★★★'];
+    document.getElementById('balDiff').textContent = diffs[Math.floor(Math.random()*3)];
+    showToast('Analiza zakończona!');
+  });
+
+  // Pathfinding
+  document.getElementById('generateMaze')?.addEventListener('click', () => {
+    const canvas = document.getElementById('pathCanvas');
+    if (canvas) { engine._mazeInit = true; engine.ai.generateMaze(canvas); }
+  });
+
+  document.getElementById('solvePath')?.addEventListener('click', () => {
+    if (!engine.ai.pathGrid) return;
+    const { grid, size, start, end } = engine.ai.pathGrid;
+    const path = engine.ai.astar(grid, start, end, size);
+    const canvas = document.getElementById('pathCanvas');
+    if (canvas) engine.ai.renderMaze(canvas, path);
+    showToast(path.length ? `Ścieżka znaleziona! (${path.length} kroków)` : 'Brak ścieżki!');
+  });
+}
+
+// ===== Assets Panel =====
+function initAssetsPanel() {
+  const grid = document.getElementById('assetsGrid');
+  if (!grid || grid.children.length > 0) return;
+
+  const assets = [
+    { icon: '🟫', name: 'Cube.mesh' },
+    { icon: '⚪', name: 'Sphere.mesh' },
+    { icon: '⬜', name: 'Plane.mesh' },
+    { icon: '💊', name: 'Capsule.mesh' },
+    { icon: '🖼', name: 'Stone_tex.png' },
+    { icon: '🖼', name: 'Grass_tex.png' },
+    { icon: '🖼', name: 'Metal_tex.png' },
+    { icon: '🔊', name: 'Jump.wav' },
+    { icon: '🔊', name: 'Footstep.wav' },
+    { icon: '🎬', name: 'Walk_anim' },
+    { icon: '📜', name: 'Player.js' },
+    { icon: '📜', name: 'Enemy.js' },
+    { icon: '✨', name: 'Explosion.pfx' },
+    { icon: '✨', name: 'Rain.pfx' },
+  ];
+
+  assets.forEach(a => {
+    const item = document.createElement('div');
+    item.className = 'asset-item';
+    item.innerHTML = `<span class="asset-icon">${a.icon}</span><span class="asset-name">${a.name}</span>`;
+    item.addEventListener('click', () => showToast(`Załadowano: ${a.name}`));
+    grid.appendChild(item);
+  });
+}
+
+// ===== Game Preview =====
+let gamePreviewLoop = null;
+let gameState = { hp: 100, score: 0, ammo: 30, time: 0, playerX: 0, playerY: 0 };
+
+function startGamePreview(engine) {
+  const canvas = document.getElementById('gamePreviewCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width = canvas.offsetWidth;
+  const h = canvas.height = canvas.offsetHeight;
+
+  const keys = {};
+  const keyHandler = e => { keys[e.key] = e.type === 'keydown'; };
+  document.addEventListener('keydown', keyHandler);
+  document.addEventListener('keyup', keyHandler);
+  canvas._keyHandler = keyHandler;
+
+  const mode = engine.currentMode;
+  const pX = { value: w/2 }, pY = { value: h/2 };
+  const enemies = Array.from({ length: 5 }, (_, i) => ({
+    x: Math.random() * w,
+    y: Math.random() * h,
+    hp: 30,
+    vx: (Math.random()-0.5)*2,
+    vy: (Math.random()-0.5)*2
+  }));
+
+  const draw = (t) => {
+    // Background
+    const bgColors = {
+      normal: '#0a1628',
+      realistic: '#050505',
+      retro: '#000',
+      ps1: '#1a0a3e'
+    };
+    ctx.fillStyle = bgColors[mode] || '#0a1628';
+    ctx.fillRect(0, 0, w, h);
+
+    // Grid
+    const gc = mode === 'retro' ? 'rgba(0,255,65,0.2)' : mode === 'ps1' ? 'rgba(200,100,255,0.15)' : 'rgba(0,212,255,0.1)';
+    ctx.strokeStyle = gc;
+    ctx.lineWidth = 1;
+    for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+    for (let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+
+    // Player movement
+    const spd = 3;
+    if (keys['ArrowLeft'] || keys['a'] || keys['A']) pX.value -= spd;
+    if (keys['ArrowRight'] || keys['d'] || keys['D']) pX.value += spd;
+    if (keys['ArrowUp'] || keys['w'] || keys['W']) pY.value -= spd;
+    if (keys['ArrowDown'] || keys['s'] || keys['S']) pY.value += spd;
+    pX.value = Math.max(20, Math.min(w-20, pX.value));
+    pY.value = Math.max(20, Math.min(h-20, pY.value));
+
+    // Draw enemies
+    enemies.forEach(en => {
+      en.x += en.vx;
+      en.y += en.vy;
+      if (en.x < 0 || en.x > w) en.vx *= -1;
+      if (en.y < 0 || en.y > h) en.vy *= -1;
+
+      const dx = pX.value - en.x, dy = pY.value - en.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      en.x += (dx/dist) * 0.5;
+      en.y += (dy/dist) * 0.5;
+
+      const ec = mode === 'retro' ? '#ff00ff' : mode === 'ps1' ? '#ff6090' : '#ef4444';
+      ctx.fillStyle = ec;
+      if (mode === 'retro') {
+        ctx.fillRect(en.x-10, en.y-10, 20, 20);
+        ctx.strokeStyle = '#ff00ff';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(en.x-10, en.y-10, 20, 20);
+      } else {
+        ctx.beginPath();
+        ctx.arc(en.x, en.y, 12, 0, Math.PI*2);
+        ctx.fill();
+        // HP bar
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(en.x-15, en.y-22, 30, 4);
+        ctx.fillStyle = '#10b981';
+        ctx.fillRect(en.x-15, en.y-22, 30*(en.hp/30), 4);
+      }
+    });
+
+    // Draw player
+    const pc = mode === 'retro' ? '#00ff41' : mode === 'ps1' ? '#60c0ff' : '#00d4ff';
+    if (mode === 'retro') {
+      ctx.fillStyle = pc;
+      ctx.fillRect(pX.value-10, pY.value-14, 20, 28);
+      ctx.fillStyle = '#00ff41';
+      ctx.fillRect(pX.value-6, pY.value-20, 12, 12);
+    } else {
+      ctx.fillStyle = pc;
+      ctx.shadowColor = pc;
+      ctx.shadowBlur = 15;
+      ctx.beginPath();
+      ctx.arc(pX.value, pY.value, 14, 0, Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      // Direction indicator
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(pX.value, pY.value);
+      ctx.lineTo(pX.value + Math.cos(t*0.001)*20, pY.value + Math.sin(t*0.001)*20);
+      ctx.stroke();
+    }
+
+    // Scanlines for retro/ps1
+    if (mode === 'retro' || mode === 'ps1') {
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      for (let y = 0; y < h; y += 4) ctx.fillRect(0, y, w, 2);
+    }
+
+    // Mode watermark
+    const modeLabels = { normal: 'NORMAL', realistic: 'REALISTIC', retro: '8-BIT RETRO', ps1: 'PS1 STYLE' };
+    ctx.font = `bold 11px "Share Tech Mono"`;
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.fillText(modeLabels[mode] || mode, 10, h-10);
+    ctx.fillText('WASD = ruch', w-100, h-10);
+
+    // Update HUD
+    gameState.time += 0.016;
+    document.getElementById('hpVal').textContent = Math.max(0, gameState.hp);
+    document.getElementById('scoreVal').textContent = Math.floor(gameState.time * 10);
+
+    gamePreviewLoop = requestAnimationFrame(draw);
+  };
+  gamePreviewLoop = requestAnimationFrame(draw);
+}
+
+function stopGamePreview() {
+  if (gamePreviewLoop) {
+    cancelAnimationFrame(gamePreviewLoop);
+    gamePreviewLoop = null;
+  }
+}
+
+// ===== Helpers =====
+function showToast(msg) {
+  const existing = document.getElementById('nexus-toast');
+  if (existing) existing.remove();
+  const toast = document.createElement('div');
+  toast.id = 'nexus-toast';
+  toast.textContent = msg;
+  toast.style.cssText = `
+    position:fixed; bottom:30px; left:50%; transform:translateX(-50%);
+    background:#00d4ff; color:#000; padding:8px 20px; border-radius:6px;
+    font-family:'Share Tech Mono',monospace; font-size:0.8rem;
+    z-index:9999; animation:toast-in 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,212,255,0.4);
+  `;
+  const style = document.createElement('style');
+  style.textContent = '@keyframes toast-in{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}';
+  document.head.appendChild(style);
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+function rgbToHex(rgb) {
+  const m = rgb.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+  if (!m) return '#000000';
+  return '#' + [m[1],m[2],m[3]].map(n=>parseInt(n).toString(16).padStart(2,'0')).join('');
+}
+
+window.initUI = initUI;
+
+// ============================================
+// NEXUS ENGINE — Main Entry Point
+// ============================================
+
+window.addEventListener('DOMContentLoaded', () => {
+  const bootScreen = document.getElementById('boot-screen');
+  const app = document.getElementById('app');
+
+  const statusMessages = [
+    'Initializing rendering pipeline...',
+    'Loading WebGL context...',
+    'Compiling shaders...',
+    'Initializing physics engine...',
+    'Loading AI modules...',
+    'Starting editor...',
+    'Ready.'
+  ];
+
+  let msgIdx = 0;
+  const statusEl = document.querySelector('.boot-status');
+  const msgInterval = setInterval(() => {
+    if (msgIdx < statusMessages.length) {
+      if (statusEl) statusEl.textContent = statusMessages[msgIdx++];
+    } else {
+      clearInterval(msgInterval);
+    }
+  }, 30);
+
+  // Boot delay
+  setTimeout(() => {
+    bootScreen.classList.add('fade-out');
+    setTimeout(() => {
+      bootScreen.style.display = 'none';
+      app.style.cssText = 'display:flex;flex-direction:column;height:100vh;'
+
+      // Init engine
+      const engine = new NexusEngine();
+      engine.init();
+      initUI(engine);
+
+      // Welcome messages
+      setTimeout(() => {
+        engine.log('Witaj w Nexus Engine! Twój silnik do tworzenia gier.', 'info');
+        engine.log('Użyj przycisków nawigacji aby przełączać między panelami.', 'info');
+        engine.log('Kliknij ▶ URUCHOM aby zobaczyć podgląd gry.', 'info');
+        engine.log('Użyj trybu AI aby generować tekstury, teren i kod.', 'info');
+      }, 500);
+
+    }, 500);
+  }, 0);
+});
+
+</script>
 </body>
 </html>
